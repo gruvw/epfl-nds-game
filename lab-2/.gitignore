@@ -1,0 +1,7 @@
+*.map
+*.d
+*.o
+*.tmp
+*.arm9
+*.elf
+*.nds
