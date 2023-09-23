@@ -1,7 +1,3 @@
-/*
- * Template Nintendo DS
- * May 2011
- */
 #include <nds.h>
 #include <stdio.h>
 

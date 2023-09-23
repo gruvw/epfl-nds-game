@@ -4,9 +4,6 @@
 
 .SECONDARY:
 
-DEVKITARM = /opt/devkitpro/devkitARM
-DEVKITPRO = /opt/devkitpro
-
 ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
 endif
@@ -113,6 +110,7 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib)
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
+	xdg-open $(TARGET).nds
 
 #---------------------------------------------------------------------------------
 clean:
@@ -142,7 +140,7 @@ $(OUTPUT).elf	:	$(OFILES)
 # Copying precompiled code
 #---------------------------------------------------------------------------------
 precompiled:
-	# @ cp $(CURDIR)/../$(PRECOMPILED)/* .
+	@ cp $(CURDIR)/../$(PRECOMPILED)/* .
 
 
 #---------------------------------------------------------------------------------
@@ -150,7 +148,7 @@ precompiled:
 #---------------------------------------------------------------------------------
 soundbank.bin : $(AUDIOFILES)
 #---------------------------------------------------------------------------------
-	# @mmutil $^ -osoundbank.bin -hsoundbank.h -d
+	@mmutil $^ -osoundbank.bin -hsoundbank.h -d
 
 #---------------------------------------------------------------------------------
 %.s %.h	: %.png %.grit
