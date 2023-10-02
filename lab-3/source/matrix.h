@@ -18,11 +18,11 @@
  * 		rows: Number of rows in the matrix
  * 		cols: Number of columns in the matrix
  */
-typedef struct{
-	int *mat;
-	int rows;
-	int cols;
-}tMatrix;
+typedef struct {
+    int * mat;
+    int rows;
+    int cols;
+} tMatrix;
 
 /*
  * Print the matrix that receives as parameter in a proper way.
@@ -53,7 +53,7 @@ int sumMatrix(int mat[], int rows, int columns);
  * rows and columns). The result is stored in the 5th parameter
  * which is an array of integer representing the resulting matrix
  */
-void multMatrices(int mat1[], int mat2[], int rows, int columns,int result[]);
+void multMatrices(int mat1[], int mat2[], int rows, int columns, int result[]);
 
 /*
  * This function multiply two matrices represented by the data structure
@@ -64,7 +64,7 @@ void multMatrices(int mat1[], int mat2[], int rows, int columns,int result[]);
  * This memory has to be released by the programmer in a proper way.
  */
 
-tMatrix* multMatrices2(tMatrix* m1, tMatrix* m2);
+tMatrix * multMatrices2(tMatrix * m1, tMatrix * m2);
 
 /*
  * Declare a procedure that takes 3 parameters:
@@ -73,7 +73,6 @@ tMatrix* multMatrices2(tMatrix* m1, tMatrix* m2);
  * 			of the matrix
  */
 
-//void sumDiagonal(..,.. );
-
+void sumDiagonal(const tMatrix * m1, int * sum);
 
 #endif /* MATRIX_H_ */
