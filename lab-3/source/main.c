@@ -156,7 +156,7 @@ int main(void) {
     free(result4->mat);
     free(result4);
 
-        while (1) {
+    while (1) {
         swiWaitForVBlank();
     }
 }

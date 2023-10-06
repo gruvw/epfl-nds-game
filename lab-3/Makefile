@@ -107,7 +107,7 @@ endif
 $(BUILD):
 	@[ -d $@ ] || mkdir -p $@
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
-	xdg-open $(TARGET).nds
+	# xdg-open $(TARGET).nds
 
 #---------------------------------------------------------------------------------
 clean:
