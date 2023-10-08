@@ -1,0 +1,18 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "cppdbg",
+            "request": "launch",
+            "name": "Launch NDS debug",
+            "MIMode": "gdb",
+            "miDebuggerPath": "gdb-multiarch",
+            "cwd": "${workspaceFolder}",
+            "program": "${workspaceFolderBasename}.elf",
+            "targetArchitecture": "arm",
+            "setupCommands": [
+                { "text": "target remote :1800" }
+            ]
+        }
+    ]
+}
