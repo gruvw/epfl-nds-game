@@ -1,0 +1,65 @@
+K 25
+svn:wc:ra_dav:version-url
+V 45
+/svn/!svn/ver/10/trunk/dstetris/source/Tetris
+END
+TetrisShape.cs
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2/trunk/dstetris/source/Tetris/TetrisShape.cs
+END
+TetrisHUD.cs
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/2/trunk/dstetris/source/Tetris/TetrisHUD.cs
+END
+TetrisGameplay.h
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/2/trunk/dstetris/source/Tetris/TetrisGameplay.h
+END
+TetrisGrid.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 59
+/svn/!svn/ver/2/trunk/dstetris/source/Tetris/TetrisGrid.cpp
+END
+TetrisShape.h
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/2/trunk/dstetris/source/Tetris/TetrisShape.h
+END
+TetrisMenu.cs
+K 25
+svn:wc:ra_dav:version-url
+V 58
+/svn/!svn/ver/2/trunk/dstetris/source/Tetris/TetrisMenu.cs
+END
+TetrisGrid.h
+K 25
+svn:wc:ra_dav:version-url
+V 57
+/svn/!svn/ver/2/trunk/dstetris/source/Tetris/TetrisGrid.h
+END
+TetrisGameplay.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 63
+/svn/!svn/ver/2/trunk/dstetris/source/Tetris/TetrisGameplay.cpp
+END
+TetrisShape.cpp
+K 25
+svn:wc:ra_dav:version-url
+V 61
+/svn/!svn/ver/10/trunk/dstetris/source/Tetris/TetrisShape.cpp
+END
+TetrisDefines.h
+K 25
+svn:wc:ra_dav:version-url
+V 60
+/svn/!svn/ver/2/trunk/dstetris/source/Tetris/TetrisDefines.h
+END
