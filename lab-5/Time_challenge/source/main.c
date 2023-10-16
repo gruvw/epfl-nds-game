@@ -19,14 +19,17 @@ int gameState = 0;
  * store the remaining ticks to play the sound and start the chronometers.
  *
  * This handler decreases by one the variable rand_ticks each time it is
- * called. When rand_ticks reaches the value 0, TIMER0 should be disabled
+ * called. When rand_ticks reaches the value 0, TIMER2 should be disabled
  * and the function that start the chronometers (startChronometers)
  * must be called.
  */
 void ISR_Timer0()
 {
-	/**TO COMPLETE**/
-
+	if(--rand_ticks == 0)
+	{
+		irqDisable(IRQ_TIMER0);
+		startChronometers();
+	}
 }
 
 
@@ -38,11 +41,23 @@ int min = 0, sec = 0, msec = 0;
 /*
  * TIER1 handler.
  * This handler is called each 1 ms. It updates the value of the variables
- * 'min', 'sec' and 'msec'. (Exercise 3 in the practical session)
+ * 'min', 'sec' and 'msec'.
  */
 void ISR_Timer1()
 {
-	/**TO COMPLETE**/
+	if(msec == 999)
+	{
+		msec = 0;
+		if(sec == 59)
+		{
+			sec = 0;
+			min = (min + 1) % 59;
+		}
+		else
+			sec++;
+	}
+	else
+		msec++;
 }
 
 
@@ -54,11 +69,22 @@ int min2 = 0, sec2 = 0, msec2 = 0;
 /*
  * TIMER2 Interrupt Handler
  * This handler is called every 1 ms and updates msec2, sec2 and min2.
- * (Like for timer 1 but with variables of player 2)
  */
 void ISR_Timer2()
 {
-	/**TO COMPLETE**/
+	if(msec2 == 999)
+	{
+		msec2 = 0;
+		if(sec2 == 59)
+		{
+			sec2 = 0;
+			min2 = (min2 + 1) % 59;
+		}
+		else
+			sec2++;
+	}
+	else
+		msec2++;
 }
 
 /*
@@ -72,7 +98,8 @@ void ISR_Keys()
 	if(keys & KEY_START)
 	{
 		//Stop (disable) TIMERS 1 and 2
-	/**TO COMPLETE**/
+		irqDisable(IRQ_TIMER1);
+		irqDisable(IRQ_TIMER2);
 
 		//Set the displays to 0 and yellow
 		min = sec = msec = 0;
@@ -84,15 +111,14 @@ void ISR_Keys()
 		//Set the time to wait until the alarm fires
 		rand_ticks = 20 + (rand() % 40);
 		//Start TIMER0 to count the random time
-	/**TO COMPLETE**/
-
+		irqEnable(IRQ_TIMER0);
 	}
 
 	//KEY A = Player 1 pressed
 	if(keys & KEY_A)
 	{
 		//Stop player 2 TIME1
-	/**TO COMPLETE**/
+		irqDisable(IRQ_TIMER1);
 
 		/*
 		 * If game state is 1, player 1 pressed the key before expected,
@@ -101,8 +127,10 @@ void ISR_Keys()
 		 */
 		if(gameState == 1)
 		{
-	/**TO COMPLETE**/
-
+			gameState = 0;
+			irqDisable(IRQ_TIMER0);
+			changeColorDisp_Main(RED);
+			changeColorDisp_Sub(RED);
 		}
 
 
@@ -114,9 +142,9 @@ void ISR_Keys()
 		 */
 		if(gameState == 2)
 		{
-	/**TO COMPLETE**/
-
-
+			gameState = 0;
+			changeColorDisp_Main(GREEN);
+			changeColorDisp_Sub(RED);
 		}
 	}
 
@@ -131,14 +159,17 @@ void ISR_Keys()
 		irqDisable(IRQ_TIMER2);
 		if(gameState == 1)
 		{
-	/**TO COMPLETE**/
-
+			gameState = 0;
+			irqDisable(IRQ_TIMER0);
+			changeColorDisp_Main(RED);
+			changeColorDisp_Sub(RED);
 		}
 
 		if(gameState == 2)
 		{
-	/**TO COMPLETE**/
-
+			gameState = 0;
+			changeColorDisp_Main(RED);
+			changeColorDisp_Sub(GREEN);
 		}
 	}
 }
@@ -149,8 +180,8 @@ void ISR_Keys()
  */
 void ISR_VBlank()
 {
-	/**TO COMPLETE**/
-
+	updateChronoDisp_Main(min, sec, msec);
+	updateChronoDisp_Sub(min2, sec2, msec2);
 }
 
 
@@ -162,8 +193,9 @@ void startChronometers()
 		//Game state turns to 2
 		gameState = 2;
 
-		//Players' timers (TIMER1 and TIMER2) are activated
-	/**TO COMPLETE**/
+		//Players' timers (TIMER0 and TIMER1) are activated
+		irqEnable(IRQ_TIMER1);
+		irqEnable(IRQ_TIMER2);
 
 		//Sound effect is played
 		playSoundEffect();
@@ -180,25 +212,28 @@ int main(void) {
 
 	/*
 	 * Timers initialization
-	 * Timer0 fires an interrupt every 100 ms
-	 * Timer1 and Timer2 fire and interruption every 1 second
-	 * Choose an suitable divider
 	 */
-	/**TO COMPLETE**/
-
+	TIMER0_CR = TIMER_DIV_1024 | TIMER_IRQ_REQ | TIMER_ENABLE;
+	TIMER0_DATA = TIMER_FREQ_1024(10);
+	TIMER1_CR = TIMER_DIV_1024  | TIMER_IRQ_REQ | TIMER_ENABLE;
+	TIMER1_DATA = TIMER_FREQ_1024(1000);
+	TIMER2_CR = TIMER_DIV_1024 | TIMER_IRQ_REQ | TIMER_ENABLE;
+	TIMER2_DATA = TIMER_FREQ_1024(1000);
 
 	/*
 	 * Irq Handlers set up
-	 * Associate handlers for Timer0, Timer1, Timer2, VBlank, and Keys
 	 */
-	/**TO COMPLETE**/
-
+	irqSet(IRQ_TIMER0, &ISR_Timer0);
+	irqSet(IRQ_TIMER1, &ISR_Timer1);
+	irqSet(IRQ_TIMER2, &ISR_Timer2);
+	irqSet(IRQ_VBLANK, &ISR_VBlank);
+	irqSet(IRQ_KEYS,&ISR_Keys);
 
 	/*
 	 * Initial Irq Enable (VBlank and keys)
-	 * Enable the interrupts for VBlank and the keys
 	 */
-	/**TO COMPLETE**/
+	irqEnable(IRQ_VBLANK);
+	irqEnable(IRQ_KEYS);
 
 	while(1) {
 		swiWaitForVBlank();
