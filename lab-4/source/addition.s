@@ -23,4 +23,3 @@ Sum:
 
 	ldmia sp!, {r4 - r11, lr} @ instruction to restore the previous saved registers
 	bx lr 					  @ jump to the return address
-
