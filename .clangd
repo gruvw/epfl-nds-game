@@ -6,4 +6,5 @@ CompileFlags:
     - "-I/opt/devkitpro/devkitARM/arm-none-eabi/include"
     - "-I/opt/devkitpro/devkitARM/arm-none-eabi/include"
     - "-I/home/gruvw/SynologyDrive/Programmation/C/nds-game/lab-5/Timers/precompiled"
+    - "-I/home/gruvw/SynologyDrive/Programmation/C/nds-game/lab-7/build"
     - "-DARM9"

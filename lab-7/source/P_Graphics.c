@@ -9,18 +9,29 @@ int P_Graphics_subH;
 
 void P_Graphics_setup_main() {
 #ifdef FB0
-    //Graphics (Part 1)
-    //Set the mode to FB0
+    // Graphics (Part 1)
+    // Set the mode to FB0
     REG_DISPCNT = MODE_FB0;
 
-    //Set the coresponding VRAM bank
+    // Set the coresponding VRAM bank
     VRAM_A_CR = VRAM_ENABLE  //Enable the Bank
                 | VRAM_A_LCD;  //Assign it to the Main engine in FB0
 
 #endif
 
 #ifdef ROTOSCALE
-    //Graphics (Part 2)
+    // Graphics (Part 2)
+    // Enable a proper RAM memory bank for the main engine
+    VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
+
+    // Configure the main engine in mode 5 (2D) and activate Background 2
+    REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE;
+
+    //Enable a proper RAM memory bank for sub engine
+    VRAM_C_CR = VRAM_ENABLE | VRAM_C_SUB_BG;
+
+    //Configure the sub engine in mode 5 (2D) and activate Background 2
+    REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG2_ACTIVE;
 #endif
 
 #ifdef TILES
