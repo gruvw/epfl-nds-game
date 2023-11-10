@@ -27,14 +27,14 @@ void P_Graphics_setup_main();
 
 
 /*
- 	 Function that assigns the buffer (already implemented) and its siz
+ 	 Function that assigns the buffer (already implemented) and its size
  */
 void P_Graphics_assignBuffer(enum BUFFER_TYPE bT, u16* buffer, int w, int h);
 
 
 /*
  	 This function fills all the screen of the given engine (MAIN or SUB)
- 	 with the input color
+ 	 with the input color.
  */
 void FillScreen(enum BUFFER_TYPE t, u16 color);
 
@@ -107,4 +107,5 @@ The input parameters are the following
 -	u16 color: This is the color that we will use to draw the borders of the
 	rectangle.
 */
+
 void DrawRectangle(enum BUFFER_TYPE bT, int top, int bottom, int left, int right, u16 color);

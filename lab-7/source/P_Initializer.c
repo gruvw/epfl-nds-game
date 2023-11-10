@@ -1,5 +1,4 @@
 #include "P_Initializer.h"
-#include "P_Map16x16.c"
 
 void P_InitNDS() {
     //Initialize the main engine

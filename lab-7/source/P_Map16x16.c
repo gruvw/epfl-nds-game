@@ -1,3 +1,4 @@
+
 #include "P_Map16x16.h"
 #include "controls.h"
 
@@ -73,7 +74,7 @@ void P_Map16x16_Init( int cols, int rows )
 #endif
 
 #ifdef ROTOSCALE
-
+     
      if (full==1)
          FillRectangle(MAIN,x*16, x*16+16, y*16, y*16+16,ARGB16(1,31,0,0));
      else
@@ -81,3 +82,4 @@ void P_Map16x16_Init( int cols, int rows )
 #endif
 
 }
+
