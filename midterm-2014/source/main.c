@@ -62,10 +62,10 @@ void exercise_4() {
 
 int main(void) {
 	// EXERCISE 1: Uncomment the following line
-	//exercise_1();
+	exercise_1();
 
 	// EXERCISE 2: Uncomment the following line (DO NOT comment the previous ones)
-	//exercise_2();
+	exercise_2();
 
 	// EXERCISE 3: Uncomment the following line (DO NOT comment the previous ones)
 	//exercise_3();
