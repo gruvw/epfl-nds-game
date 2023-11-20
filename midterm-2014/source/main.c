@@ -1,6 +1,7 @@
 #include <nds.h>
 #include "graphics_main.h"
 #include "graphics_sub.h"
+#include "nds/arm9/input.h"
 #include "timer_management.h"
 #include "game.h"
 
@@ -42,18 +43,31 @@ void exercise_4() {
 
 	while(1) {
 		// Scan the keys that have been pressed down
-		//... TO COMPLETE EXERCISE 4
+        scanKeys();
 
 		// Check if the player has pressed START
 		// In that case restart the timer (initTimer) and the game (initGame)
-		//... TO COMPLETE EXERCISE 4
+        uint32 keys = keysDown();
+        if (keys & KEY_START) {
+            initTimer();
+            initGame();
+        }
 
 		// Check if the touchscreen has been touched and if YES get the coordinates
 		// if WHITE region touched, call playerPlaysWhite()
 		// if BLACK region touched, call playerPlaysBlack()
 		// if touch is not in one of those regions, do nothing
-		//... TO COMPLETE EXERCISE 4
 
+        touchPosition pos;
+        touchRead(&pos);
+
+        if (pos.px > 53 && pos.px < 53 + 150) {
+            if (pos.py < 96) {
+                playerPlaysWhite();
+            } else {
+                playerPlaysBlack();
+            }
+        }
 
 		swiWaitForVBlank();
 	}
@@ -68,10 +82,10 @@ int main(void) {
 	exercise_2();
 
 	// EXERCISE 3: Uncomment the following line (DO NOT comment the previous ones)
-	//exercise_3();
+	exercise_3();
 
 	// EXERCISE 4: Uncomment the following line (DO NOT comment the previous ones)
-	//exercise_4();
+	exercise_4();
 
 	while(1)
 		swiWaitForVBlank();

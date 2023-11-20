@@ -9,15 +9,21 @@ void initTimer() {
 	timer_ticks = 0;
 
 	// Configure timer to trigger an interrupt every 100 ms
-	//... TO COMPLETE EXERCISE 3
+    TIMER_CR(0) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
+    TIMER_DATA(0) = TIMER_FREQ_64(10);
 
 	// Associate the ISR (timerISR) to the interrupt line and enable it
-	//... TO COMPLETE EXERCISE 3
+    irqSet(IRQ_TIMER(0), &timerISR);
+    irqEnable(IRQ_TIMER(0));
 }
 
 void timerISR() {
 	// Disable the timer when 1.5 seconds have passed and call the function
 	// playerLoses() to finish the game (player did not play on time)
-	//... TO COMPLETE EXERCISE 3
-}
+    timer_ticks++;
 
+    if (timer_ticks >= 1.5 * 10) {
+        irqDisable(IRQ_TIMER(0));
+        playerLoses();
+    }
+}
