@@ -144,8 +144,8 @@ Information:
   * 49152 pixels
   * Drawn from left to right and top to bottom
 * Interrupts when drawing
-  * `IRQ_VBLANK`: vertical blank
-  * `IRQ_HBLANK`: horizontal blank
+  * `IRQ_VBLANK`: vertical blank, once per screen refresh
+  * `IRQ_HBLANK`: horizontal blank, once per line refresh
 * Bitmaps in VRAM used with ARM9 from `0x06000000` to `0x068A0000` (656KB)
   * `A` to `D`: 128 KiB
   * `E`: 64 KiB
@@ -254,13 +254,11 @@ GRIT:
 
 Examples:
 
-<!-- ASK should we REG_POWERCNT in the midterm ? never done in correction -->
 * Activation: `REG_POWERCNT = POWER_LCD | POWER_2D_A`
 * Deactivation: `REG_POWERCNT &= ~(POWER_LCD) & ~(POWER_2D_A)`
 * Activate mode 4 and background 2: `REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE`
 * Activate mode and background for SUB display: `REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG2_ACTIVE`
 * Store image of 256x256 pixels with palette (64 KiB), activate VRAM: `VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG`
-<!-- ASK how to specify which pallette to use (can we use 16 pallettes) -->
 * Main 2D engine, background 2, base address 0, 256x256 image size, one palette format (`B8`): `BGCTRL[2] = BG_BMP_BASE(0) | BgSize_B8_256x256` (or `BGCTRL_SUB[x]`)
 * Write color: `BG_BMP_RAM(0)[row * SCREEN_WIDTH + col] = color` (`BG_BMP_RAM(0) === BG_GFX`)
 * Transfer image (to base address 0): `swiCopy(imgBitmap, BG_BMP_RAM(0), imgBitmapLen/2)`
@@ -288,7 +286,7 @@ Tile referencing (map format):
   * Horizontal/Vertical mirror: 2 bits
     * Horizontal flip: `tile | BIT(10)`
     * Vertical flip: `tile | BIT(11)`
-  * Palette used (if 16-color palette): 4 bits (16 possible palettes)
+  * Palette used (if 16-color palette): 4 bits (16 possible palettes), bits 15-12 specify palette number
 * Map can start (map base) in address multiple of 2 KB (0x800)
   * Most used BG: 32x32 tiles (2 B per tile), total of 2 KB
   * Config BG register controller: `BG_MAP_BASE(x)` (increase of 2KB for tile mode, 16 KB for rotoscale), `BG_TILE_BASE(x)` (increase of 16KB)
@@ -428,9 +426,6 @@ Automatic transformation:
 * Place audio files in folder `audio` inside C project
 * When building the project files will be generated in the `build` folder (`.bin`, `.h`)
 * Use sounds in C project with MaxMod API: include library and soundbank headers
-
-<!-- ASK can only play one background music -->
-<!-- ASK can we stop a sound effect -->
 
 Examples:
 
