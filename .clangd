@@ -10,4 +10,5 @@ CompileFlags:
     - "-I/home/gruvw/SynologyDrive/Programmation/C/nds-game/midterm-2017/precompiled"
     - "-I/home/gruvw/SynologyDrive/Programmation/C/nds-game/midterm-2017/source"
     - "-I/home/gruvw/SynologyDrive/Programmation/C/nds-game/midterm-2022/build"
+    - "-I/home/gruvw/SynologyDrive/Programmation/C/nds-game/midterm/build"
     - "-DARM9"
