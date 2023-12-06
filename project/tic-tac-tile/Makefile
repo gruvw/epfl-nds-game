@@ -113,6 +113,10 @@ clean:
 	@echo clean ...
 	@rm -fr $(BUILD) $(TARGET).elf $(TARGET).nds $(TARGET).arm9 $(TARGET).ds.gba
 
+gitlab:
+	cp -a . /home/gruvw/SynologyDrive/EPFL/BA5/SEM/tic-tac-tile/
+	./gitlab.sh
+
 else
 
 DEPENDS	:=	$(OFILES:.o=.d) precompiled
