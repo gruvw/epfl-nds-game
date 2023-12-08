@@ -1,4 +1,4 @@
-.PHONY: build clean run
+.PHONY: build clean run gitlab
 
 ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")

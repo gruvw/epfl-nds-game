@@ -1,0 +1,2 @@
+void setBackground();
+void setCross();

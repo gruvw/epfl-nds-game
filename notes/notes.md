@@ -213,6 +213,7 @@ Additional configuration:
   * Set bitmap base address, indicate slot to use in dedicated background memory `BG_BMP_BASE(x)` (increase of 16 KB)
   * Indicate background size and format `BgSize_m_yxz`, `m` is `B8` or `B16` (bitmap pixel size), `yxz` is background size (e.g.: `256x256`)
 * Initialize pallets when using 8 bits mode `BG_PALETTE[0..=255]`
+* Can only use 256 colors type of palette with rotoscale
 * Optional: adjust affine transformation matrix (for each background)
 
 Palettes:
