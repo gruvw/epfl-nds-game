@@ -9,8 +9,12 @@
 #include "a-palette.h"
 #include "b-background.h"
 #include "c-cross.h"
+#include "d-circle.h"
+#include "e-select.h"
 
-#define CROSS_PALETTE_INCR 1
+#define CROSS_PALETTE_INCR 2
+#define CIRCLE_PALETTE_INCR 3
+#define SELECT_PALETTE_INCR 4
 
 // === Utilities ===
 
@@ -30,6 +34,8 @@ void correct_palette(void * data, size_t len, int increment) {
 
 void images_palette_correction() {
     correct_palette((void *) c_crossBitmap, c_crossBitmapLen, CROSS_PALETTE_INCR);
+    correct_palette((void *) d_circleBitmap, d_circleBitmapLen, CIRCLE_PALETTE_INCR);
+    correct_palette((void *) e_selectBitmap, e_selectBitmapLen, SELECT_PALETTE_INCR);
 }
 
 // === Setup ===
@@ -56,13 +62,19 @@ void set_background() {
     swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
 }
 
-void set_cross(size_t row_pos, size_t col_pos) {
-    images_palette_correction();
-
-    const u16 * s = (u16 *) c_crossBitmap;
-    for (size_t col = 0; col < 40 / 2; col++) {
-        for (size_t row = 0; row < 40; row++) {
-            BG_BMP_RAM(0)[(row_pos + row) * SCREEN_WIDTH / 2 + col_pos / 2 + col] = s[row * 40 / 2 + col];
+void overlay_sprite(void * sprite, size_t row_pos, size_t col_pos, size_t side) {
+    const u16 * s = sprite;
+    for (size_t col = 0; col < side / 2; col++) {
+        for (size_t row = 0; row < side; row++) {
+            BG_BMP_RAM(0)[(row_pos + row) * SCREEN_WIDTH / 2 + col_pos / 2 + col] = s[row * side / 2 + col];
         }
     }
+}
+
+void main_graphics() {
+    overlay_sprite((void *) e_selectBitmap, 72, 104, 48);
+    // overlay_sprite((void *) e_selectBitmap, 122, 54, 48);
+
+    overlay_sprite((void *) c_crossBitmap, 76, 108, 40);
+    overlay_sprite((void *) d_circleBitmap, 126, 58, 40);
 }

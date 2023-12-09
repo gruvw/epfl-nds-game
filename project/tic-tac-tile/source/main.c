@@ -31,7 +31,8 @@ int main(void) {
 
     graphics_setup();
     set_background();
-    set_cross(150, 10);
+
+    main_graphics();
 
     while (1) {
         swiWaitForVBlank();
