@@ -1,4 +1,4 @@
-.PHONY: build clean run gitlab
+.PHONY: build clean run gitlab upload
 
 ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
@@ -116,6 +116,11 @@ clean:
 gitlab:
 	cp -a . /home/gruvw/SynologyDrive/EPFL/BA5/SEM/tic-tac-tile/
 	./gitlab.sh
+
+upload:
+	make build
+	[ -e "/media/gruvw/0403-0201/NDS/" ] || udisksctl mount -b /dev/sda1
+	cp ./tic-tac-tile.nds /media/gruvw/0403-0201/NDS/
 
 else
 
