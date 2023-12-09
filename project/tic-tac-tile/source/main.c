@@ -29,8 +29,9 @@ int main(void) {
     // printf("%u\n", cell_at(b, COORDS(2, 1)));
     // printf("%u\n", is_empty(b, COORDS(2, 1)));
 
-    setBackground();
-    setCross();
+    graphics_setup();
+    set_background();
+    set_cross(150, 10);
 
     while (1) {
         swiWaitForVBlank();
