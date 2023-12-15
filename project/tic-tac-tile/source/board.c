@@ -3,6 +3,8 @@
 
 #include "board.h"
 
+#define B(coords) (coords << 1U)
+
 const Board START_BOARD = 0;
 const Board CELL_MASK = 0b11U;
 
@@ -12,6 +14,7 @@ const Coords END = SIDE - 1;
 const Coords TOP_LEFT = COORDS(0, 0);
 const Coords TOP_RIGHT = COORDS(0, END);
 const Coords BOTTOM_LEFT = COORDS(END, 0);
+const Coords BOTTOM_RIGHT = COORDS(END, END);
 const Coords MID_LEFT = COORDS(END / 2, 0);
 const Coords MID_TOP = COORDS(0, END / 2);
 
@@ -32,16 +35,18 @@ const Cell WINS[] = {
     TOP_RIGHT, COL_INCR,
 };
 
+Board prefix(Board board, Coords coords) {
+    return board >> B(coords);
+}
+
 Board placed_cell(Board board, Cell cell, Coords coords) {
-    Board prefix = board >> coords;
-    Board suffix = board & ((1U << coords) - 1);
-    Board placed = (prefix & ~CELL_MASK) | cell;
-    return (placed << coords) | suffix;
+    Board suffix = board & ((1U << B(coords)) - 1);
+    Board placed = (prefix(board, coords) & ~CELL_MASK) | cell;
+    return (placed << B(coords)) | suffix;
 }
 
 Cell cell_at(Board board, Coords coords) {
-    Board prefix = board >> coords;
-    return prefix & CELL_MASK;
+    return prefix(board, coords) & CELL_MASK;
 }
 
 bool is_empty(Board board, Coords coords) {

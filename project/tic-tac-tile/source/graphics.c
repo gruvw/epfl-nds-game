@@ -4,6 +4,7 @@
 
 #include "a-palette.h"
 #include "b-background.h"
+#include "board.h"
 #include "c-cross.h"
 #include "d-circle.h"
 #include "e-select.h"
@@ -18,7 +19,21 @@
 #define CIRCLE_PALETTE_INCR 4
 #define SELECT_PALETTE_INCR 5
 
+// === Types ===
+
+typedef struct {
+    size_t row;
+    size_t col;
+} ScreenPosition;
+
 // === Utilities ===
+
+ScreenPosition position_from_coords(Coords coords) {
+    return (ScreenPosition) {
+        26 + 50 * ROW(coords),
+        58 + 50 * COL(coords),
+    };
+}
 
 void set_bg_transform(size_t bg_nb) {
     bgTransform[bg_nb]->hdx = BIT(8);
@@ -94,10 +109,35 @@ void overlay_sprite(const u16 * sprite, size_t row_pos, size_t col_pos, size_t s
     }
 }
 
-void main_graphics() {
-    overlay_sprite((void *) e_selectBitmap, 72, 104, 48);
-    // overlay_sprite((void *) e_selectBitmap, 122, 54, 48);
+void draw_select(Coords coords) {
+    ScreenPosition pos = position_from_coords(coords);
+    overlay_sprite((void*) e_selectBitmap, pos.row - 4, pos.col - 4, 48);
+}
 
-    overlay_sprite((void *) c_crossBitmap, 76, 108, 40);
-    overlay_sprite((void *) d_circleBitmap, 126, 58, 40);
+void draw_board(Board board) {
+    for (Coords c = 0; c <= BOTTOM_RIGHT; c++) {
+        if (!is_empty(board, c)) {
+            const void * side = cell_at(board, c) == CROSS ? c_crossBitmap : d_circleBitmap;
+            ScreenPosition pos = position_from_coords(c);
+            overlay_sprite(side, pos.row, pos.col, 40);
+        }
+    }
+}
+
+void clear_game() {
+    memset(BG_BMP_RAM(0), 0, SCREEN_WIDTH * SCREEN_HEIGHT);
+}
+
+void main_graphics() {
+    draw_select(COORDS(0,1));
+    draw_select(COORDS(2,2));
+    Board b = START_BOARD;
+    for (Coords c = 0; c <= BOTTOM_RIGHT; c++) {
+        b = placed_cell(b, c % 2 ? CROSS : CIRCLE, c);
+    }
+    draw_board(b);
+    clear_game();
+    draw_select(COORDS(2,2));
+
+    // ASK sync wait
 }
