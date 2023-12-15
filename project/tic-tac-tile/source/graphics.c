@@ -60,6 +60,13 @@ void images_palette_correction() {
     correct_palette((void *) e_selectBitmap, e_selectBitmapLen, SELECT_PALETTE_INCR);
 }
 
+// === Backgrounds ===
+
+void set_backgrounds() {
+    swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
+    swiCopy(f_sub_backgroundMap, BG_MAP_RAM_SUB(0), f_sub_backgroundMapLen / 2);
+}
+
 // === Setup ===
 
 void graphics_setup() {
@@ -90,15 +97,12 @@ void graphics_setup() {
     // Copy tiles
     swiCopy(f_sub_backgroundTiles, BG_TILE_RAM_SUB(1), f_sub_backgroundTilesLen / 2);
 
+    // Setup
     images_palette_correction();
+    set_backgrounds();
 }
 
 // === Graphics Drawing ===
-
-void set_backgrounds() {
-    swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
-    swiCopy(f_sub_backgroundMap, BG_MAP_RAM_SUB(0), f_sub_backgroundMapLen / 2);
-}
 
 void overlay_sprite(const u16 * sprite, size_t row_pos, size_t col_pos, size_t side) {
     for (size_t col = 0; col < side / 2; col++) {
@@ -124,20 +128,6 @@ void draw_board(Board board) {
     }
 }
 
-void clear_game() {
+void clear_game_screen() {
     memset(BG_BMP_RAM(0), 0, SCREEN_WIDTH * SCREEN_HEIGHT);
-}
-
-void main_graphics() {
-    draw_select(COORDS(0,1));
-    draw_select(COORDS(2,2));
-    Board b = START_BOARD;
-    for (Coords c = 0; c <= BOTTOM_RIGHT; c++) {
-        b = placed_cell(b, c % 2 ? CROSS : CIRCLE, c);
-    }
-    draw_board(b);
-    clear_game();
-    draw_select(COORDS(2,2));
-
-    // ASK sync wait
 }
