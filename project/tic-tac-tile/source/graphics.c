@@ -7,6 +7,8 @@
 #include "c-cross.h"
 #include "d-circle.h"
 #include "e-select.h"
+#include "f-sub-background.h"
+#include "g-sub-palette.h"
 #include "nds/arm9/background.h"
 #include "nds/arm9/video.h"
 #include "nds/ndstypes.h"
@@ -19,12 +21,12 @@
 // === Utilities ===
 
 void set_bg_transform(size_t bg_nb) {
-	bgTransform[bg_nb]->hdx = BIT(8);
-	bgTransform[bg_nb]->vdx = 0*256;
-	bgTransform[bg_nb]->hdy = 0*256;
-	bgTransform[bg_nb]->vdy = BIT(8);
-	bgTransform[bg_nb]->dx = 0*256;
-	bgTransform[bg_nb]->dy = 0*256;
+    bgTransform[bg_nb]->hdx = BIT(8);
+    bgTransform[bg_nb]->vdx = 0 * 256;
+    bgTransform[bg_nb]->hdy = 0 * 256;
+    bgTransform[bg_nb]->vdy = BIT(8);
+    bgTransform[bg_nb]->dx = 0 * 256;
+    bgTransform[bg_nb]->dy = 0 * 256;
 }
 
 // === Images Palette Corrections ===
@@ -52,9 +54,12 @@ void graphics_setup() {
     // Graphics setup control registers
     VRAM_A_CR = VRAM_ENABLE | VRAM_A_MAIN_BG;
     REG_DISPCNT = MODE_5_2D | DISPLAY_BG2_ACTIVE | DISPLAY_BG3_ACTIVE;
+    VRAM_C_CR = VRAM_ENABLE | VRAM_C_SUB_BG;
+    REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG0_ACTIVE;
 
-    BGCTRL[2] = BG_BMP_BASE(0) | BgSize_B8_256x256;
-    BGCTRL[3] = BG_BMP_BASE(3) | BgSize_B8_256x256;
+    BGCTRL[2] = BgSize_B8_256x256 | BG_BMP_BASE(0);
+    BGCTRL[3] = BgSize_B8_256x256 | BG_BMP_BASE(3);
+    BGCTRL_SUB[0] = BG_32x32 | BG_COLOR_256 | BG_MAP_BASE(0) | BG_TILE_BASE(1);
 
     set_bg_transform(2);
     set_bg_transform(3);
@@ -63,20 +68,21 @@ void graphics_setup() {
     memset(BG_BMP_RAM(0), 0, SCREEN_WIDTH * SCREEN_HEIGHT);
     memset(BG_BMP_RAM(3), 0, SCREEN_WIDTH * SCREEN_HEIGHT);
 
-    // Prepare palettes
-    const u16 * pal = a_paletteBitmap;
-    for (size_t i = 0; i < 128; i++) {
-        BG_PALETTE[i + 1] = pal[i];
-    }
+    // Copy palettes
+    swiCopy(a_paletteBitmap, BG_PALETTE + 1, 128);
+    swiCopy(g_sub_paletteBitmap, BG_PALETTE_SUB + 1, 128);
+
+    // Copy tiles
+    swiCopy(f_sub_backgroundTiles, BG_TILE_RAM_SUB(1), f_sub_backgroundTilesLen / 2);
 
     images_palette_correction();
-
 }
 
 // === Graphics Drawing ===
 
-void set_background() {
+void set_backgrounds() {
     swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
+    swiCopy(f_sub_backgroundMap, BG_MAP_RAM_SUB(0), f_sub_backgroundMapLen / 2);
 }
 
 void overlay_sprite(const u16 * sprite, size_t row_pos, size_t col_pos, size_t side) {

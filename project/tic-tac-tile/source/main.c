@@ -30,7 +30,7 @@ int main(void) {
     // printf("%u\n", is_empty(b, COORDS(2, 1)));
 
     graphics_setup();
-    set_background();
+    set_backgrounds();
 
     main_graphics();
 
