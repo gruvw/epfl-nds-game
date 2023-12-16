@@ -32,6 +32,6 @@ Board placed_cell(Board board, Cell cell, Coords coords);
 
 Cell cell_at(Board board, Coords coords);
 
-bool is_empty(Board board, Coords coords);
+bool is_full(Board board);
 
 Winner winner_of(Board board);

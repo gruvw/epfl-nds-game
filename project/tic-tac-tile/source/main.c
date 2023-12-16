@@ -7,11 +7,9 @@
 
 int main(void) {
     // consoleDemoInit();
-
     // printf("\nTemplate nds\n");
 
     graphics_setup();
     game_setup();
-
     game_loop();
 }

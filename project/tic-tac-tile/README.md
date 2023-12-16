@@ -4,7 +4,15 @@ EPFL EE-310 BA5 NDS project
 
 This game is a [Tic-Tac-Toe](https://en.wikipedia.org/wiki/Tic-tac-toe) clone on the [NDS](https://en.wikipedia.org/wiki/Nintendo_DS).
 
-## Game modes
+## Showcase
+
+<!-- TODO -->
+
+## Insturctions
+
+<!-- TODO -->
+
+### Game modes
 
 It features 3 game modes:
 

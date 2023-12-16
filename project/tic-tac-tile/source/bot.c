@@ -2,7 +2,7 @@
 
 Board bot_placed_cell(Board board) {
     for (Coords c = 0; c <= BOTTOM_RIGHT; c++) {
-        if (is_empty(board, c)) {
+        if (cell_at(board, c) == EMPTY) {
             return placed_cell(board, CIRCLE, c);
         }
     }

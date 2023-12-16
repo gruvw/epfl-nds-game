@@ -1,5 +1,6 @@
 #include <stdbool.h>
 #include <stddef.h>
+#include <stdio.h>
 
 #include "board.h"
 
@@ -30,9 +31,9 @@ const Cell WINS[] = {
     TOP_LEFT, ROW_INCR,
     BOTTOM_LEFT, DIAG_UP_INCR,
     BOTTOM_LEFT, ROW_INCR,
-    MID_LEFT, ROW_INCR,
-    MID_TOP, COL_INCR,
-    TOP_RIGHT, COL_INCR,
+    TOP_RIGHT, ROW_INCR,
+    MID_LEFT, COL_INCR,
+    MID_TOP, ROW_INCR,
 };
 
 Board prefix(Board board, Coords coords) {
@@ -49,19 +50,26 @@ Cell cell_at(Board board, Coords coords) {
     return prefix(board, coords) & CELL_MASK;
 }
 
-bool is_empty(Board board, Coords coords) {
-    return cell_at(board, coords) == EMPTY;
+bool is_full(Board board) {
+    for (Coords c = 0; c < BOTTOM_RIGHT; c++) {
+        if (cell_at(board, c) == EMPTY) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 bool three_same(Board board, Coords start, Coords direction) {
     Cell first = cell_at(board, start);
     Cell second = cell_at(board, start + direction);
-    Cell third = cell_at(board, start + (direction << 1U));
+    Cell third = cell_at(board, start + 2 * direction);
     return (first != EMPTY) && (first == second) && (first == third);
 }
 
 Winner winner_of(Board board) {
     for (size_t i = 0; i < sizeof(WINS) / sizeof(*WINS); i += 2) {
+        printf("%d ", WINS[i]);
         if (three_same(board, WINS[i], WINS[i + 1])) {
             return (Winner) {
                 cell_at(board, WINS[i]),
