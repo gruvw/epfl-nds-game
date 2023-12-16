@@ -12,6 +12,7 @@
 #include "g-sub-palette.h"
 #include "nds/arm9/background.h"
 #include "nds/arm9/video.h"
+#include "nds/dma.h"
 #include "nds/ndstypes.h"
 
 #define BG_PALETTE_INCR 1
@@ -46,7 +47,7 @@ void set_bg_transform(size_t bg_nb) {
 
 // === Images Palette Corrections ===
 
-void correct_palette(void * data, size_t len, int increment) {
+void patch_palette(void * data, size_t len, int increment) {
     unsigned char * r = data;
     for (size_t i = 0; i < len; i++) {
         r[i] += (r[i] == 0) ? 0 : increment;
@@ -54,10 +55,10 @@ void correct_palette(void * data, size_t len, int increment) {
 }
 
 void images_palette_correction() {
-    correct_palette((void *) b_backgroundBitmap, b_backgroundBitmapLen, BG_PALETTE_INCR);
-    correct_palette((void *) c_crossBitmap, c_crossBitmapLen, CROSS_PALETTE_INCR);
-    correct_palette((void *) d_circleBitmap, d_circleBitmapLen, CIRCLE_PALETTE_INCR);
-    correct_palette((void *) e_selectBitmap, e_selectBitmapLen, SELECT_PALETTE_INCR);
+    patch_palette((void *) b_backgroundBitmap, b_backgroundBitmapLen, BG_PALETTE_INCR);
+    patch_palette((void *) c_crossBitmap, c_crossBitmapLen, CROSS_PALETTE_INCR);
+    patch_palette((void *) d_circleBitmap, d_circleBitmapLen, CIRCLE_PALETTE_INCR);
+    patch_palette((void *) e_selectBitmap, e_selectBitmapLen, SELECT_PALETTE_INCR);
 }
 
 // === Backgrounds ===
@@ -87,15 +88,15 @@ void graphics_setup() {
     set_bg_transform(3);
 
     // Reset all backgrounds
-    memset(BG_BMP_RAM(0), 0, SCREEN_WIDTH * SCREEN_HEIGHT);
-    memset(BG_BMP_RAM(3), 0, SCREEN_WIDTH * SCREEN_HEIGHT);
+    dmaFillHalfWords(0, BG_BMP_RAM(0), SCREEN_WIDTH * SCREEN_HEIGHT);
+    dmaFillHalfWords(0, BG_BMP_RAM(3), SCREEN_WIDTH * SCREEN_HEIGHT);
 
     // Copy palettes
-    swiCopy(a_paletteBitmap, BG_PALETTE + 1, 128);
-    swiCopy(g_sub_paletteBitmap, BG_PALETTE_SUB + 1, 128);
+    dmaCopy(a_paletteBitmap, BG_PALETTE + 1, 128);
+    dmaCopy(g_sub_paletteBitmap, BG_PALETTE_SUB + 1, 128);
 
     // Copy tiles
-    swiCopy(f_sub_backgroundTiles, BG_TILE_RAM_SUB(1), f_sub_backgroundTilesLen / 2);
+    dmaCopy(f_sub_backgroundTiles, BG_TILE_RAM_SUB(1), f_sub_backgroundTilesLen);
 
     // Setup
     images_palette_correction();
@@ -105,11 +106,9 @@ void graphics_setup() {
 // === Graphics Drawing ===
 
 void overlay_sprite(const u16 * sprite, size_t row_pos, size_t col_pos, size_t side) {
-    for (size_t col = 0; col < side / 2; col++) {
-        for (size_t row = 0; row < side; row++) {
-            size_t pos = (row_pos + row) * SCREEN_WIDTH / 2 + col_pos / 2 + col;
-            BG_BMP_RAM(0)[pos] = sprite[row * side / 2 + col];
-        }
+    for (size_t row = 0; row < side; row++) {
+        size_t pos = (row_pos + row) * SCREEN_WIDTH / 2 + col_pos / 2;
+        dmaCopy(sprite + row * side / 2, BG_BMP_RAM(0) + pos, side);
     }
 }
 
@@ -129,5 +128,5 @@ void draw_board(Board board) {
 }
 
 void clear_game_screen() {
-    memset(BG_BMP_RAM(0), 0, SCREEN_WIDTH * SCREEN_HEIGHT);
+    dmaFillHalfWords(0, BG_BMP_RAM(0), SCREEN_WIDTH * SCREEN_HEIGHT);
 }

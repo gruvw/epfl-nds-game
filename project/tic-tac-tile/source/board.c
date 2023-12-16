@@ -3,7 +3,7 @@
 
 #include "board.h"
 
-#define B(coords) (coords << 1U)
+#define B(coords) ((uint32_t) coords << 1U)
 
 const Board START_BOARD = 0;
 const Board CELL_MASK = 0b11U;
