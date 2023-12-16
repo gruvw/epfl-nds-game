@@ -10,15 +10,22 @@
 #include "e-select.h"
 #include "f-sub-background.h"
 #include "g-sub-palette.h"
+#include "h-begin.h"
+#include "i-sub-finished.h"
 #include "nds/arm9/background.h"
 #include "nds/arm9/video.h"
 #include "nds/dma.h"
 #include "nds/ndstypes.h"
 
+// Main display
 #define BG_PALETTE_INCR 1
-#define CROSS_PALETTE_INCR 3
-#define CIRCLE_PALETTE_INCR 4
-#define SELECT_PALETTE_INCR 5
+#define CROSS_PALETTE_INCR (BG_PALETTE_INCR + 2)
+#define CIRCLE_PALETTE_INCR (CROSS_PALETTE_INCR + 1)
+#define SELECT_PALETTE_INCR (CIRCLE_PALETTE_INCR + 1)
+#define BEGIN_INCR (SELECT_PALETTE_INCR + 1)
+
+// Sub display
+#define BG_SUB_FINISHED_INCR 5
 
 // === Types ===
 
@@ -55,10 +62,15 @@ void patch_palette(void * data, size_t len, int increment) {
 }
 
 void images_palette_correction() {
+    // Main display
     patch_palette((void *) b_backgroundBitmap, b_backgroundBitmapLen, BG_PALETTE_INCR);
     patch_palette((void *) c_crossBitmap, c_crossBitmapLen, CROSS_PALETTE_INCR);
     patch_palette((void *) d_circleBitmap, d_circleBitmapLen, CIRCLE_PALETTE_INCR);
     patch_palette((void *) e_selectBitmap, e_selectBitmapLen, SELECT_PALETTE_INCR);
+    patch_palette((void *) h_beginBitmap, h_beginBitmapLen, BEGIN_INCR);
+
+    // Sub display
+    patch_palette((void *) i_sub_finishedBitmap, i_sub_finishedBitmapLen, BG_SUB_FINISHED_INCR);
 }
 
 // === Backgrounds ===
@@ -66,6 +78,7 @@ void images_palette_correction() {
 void set_backgrounds() {
     swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
     swiCopy(f_sub_backgroundMap, BG_MAP_RAM_SUB(0), f_sub_backgroundMapLen / 2);
+    swiCopy(i_sub_finishedBitmap, BG_BMP_RAM_SUB(3), i_sub_finishedBitmapLen / 2);
 }
 
 // === Setup ===
@@ -80,12 +93,19 @@ void graphics_setup() {
     VRAM_C_CR = VRAM_ENABLE | VRAM_C_SUB_BG;
     REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG0_ACTIVE;
 
-    BGCTRL[2] = BgSize_B8_256x256 | BG_BMP_BASE(0);
-    BGCTRL[3] = BgSize_B8_256x256 | BG_BMP_BASE(3);
-    BGCTRL_SUB[0] = BG_32x32 | BG_COLOR_256 | BG_MAP_BASE(0) | BG_TILE_BASE(1);
+    BGCTRL[2] = BgSize_B8_256x256 | BG_BMP_BASE(0); // used for X, O, select
+    BGCTRL[3] = BgSize_B8_256x256 | BG_BMP_BASE(3); // used for tic tac toe background, and begin menu
+    BGCTRL_SUB[0] = BG_32x32 | BG_COLOR_256 | BG_MAP_BASE(0) | BG_TILE_BASE(1); // used for BG settings menu
+    BGCTRL_SUB[2] = BgSize_B8_256x256 | BG_BMP_BASE(3); // used for Game Over
 
+    // Set up extended rotoscale affine matrix
     set_bg_transform(2);
     set_bg_transform(3);
+    REG_BG2PA_SUB = BIT(8);
+    REG_BG2PC_SUB = 0;
+    REG_BG2PB_SUB = 0;
+    REG_BG2PD_SUB = BIT(8);
+
 
     // Reset all backgrounds
     dmaFillHalfWords(0, BG_BMP_RAM(0), SCREEN_WIDTH * SCREEN_HEIGHT);
@@ -129,4 +149,22 @@ void draw_board(Board board) {
 
 void clear_game_screen() {
     dmaFillHalfWords(0, BG_BMP_RAM(0), SCREEN_WIDTH * SCREEN_HEIGHT);
+}
+
+void show_game_over() {
+    REG_DISPCNT_SUB |= DISPLAY_BG2_ACTIVE;
+    REG_DISPCNT_SUB &= ~DISPLAY_BG0_ACTIVE;
+}
+
+void hide_game_over() {
+    REG_DISPCNT_SUB |= DISPLAY_BG0_ACTIVE;
+    REG_DISPCNT_SUB &= ~DISPLAY_BG2_ACTIVE;
+}
+
+void show_begin() {
+    swiCopy(h_beginBitmap, BG_BMP_RAM(3), h_beginBitmapLen / 2);
+}
+
+void hide_begin() {
+    swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
 }

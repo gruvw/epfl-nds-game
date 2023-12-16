@@ -58,8 +58,12 @@ void refresh_game_screen() {
 
 void keys_handler() {
     if (game_state == BEGIN) {
+        hide_game_over();
+        show_begin();
+
         if (PRESSED(KEY_START)) {
             game_state = RUNNING;
+            hide_begin();
             refresh_game_screen();
         }
     }
@@ -90,6 +94,8 @@ void keys_handler() {
     }
 
     if (game_state == FINISHED) {
+        show_game_over();
+
         Winner a = winner_of(board);
         clear_game_screen();
 
@@ -112,6 +118,7 @@ void keys_handler() {
 void game_setup() {
     // Golbals
     reset_game();
+    show_begin();
     game_mode = SINGLE_PLAYER;
 
     // Interrupts

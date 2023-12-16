@@ -8,3 +8,7 @@ void overlay_sprite(const u16 * sprite, size_t row_pos, size_t col_pos, size_t s
 void draw_board(Board board);
 void draw_select(Coords coords);
 void clear_game_screen();
+void show_game_over();
+void hide_game_over();
+void show_begin();
+void hide_begin();
