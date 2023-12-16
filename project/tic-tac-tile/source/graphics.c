@@ -16,6 +16,9 @@
 #include "nds/arm9/video.h"
 #include "nds/dma.h"
 #include "nds/ndstypes.h"
+#include "game.h"
+
+// === Palette corrections ===
 
 // Main display
 #define BG_PALETTE_INCR 1
@@ -25,7 +28,15 @@
 #define BEGIN_INCR (SELECT_PALETTE_INCR + 1)
 
 // Sub display
-#define BG_SUB_FINISHED_INCR 5
+#define BG_SUB_FINISHED_INCR 11
+
+// === Palette colors mapping ===
+
+#define TRANSPARENT 0
+#define SELECTED_COLOR RGB15(0, 18, 31)
+
+#define MODE_TO_PALETTE(mode) BG_PALETTE_SUB[(1 + ((mode) == SINGLE_PLAYER ? 9 : ((mode) == TWO_PLAYER_LOCAL ? 2 : 6)))]
+#define SPEED_TO_PALETTE(mode) BG_PALETTE_SUB[(1 + ((mode) == SLOW ? 5 : ((mode) == MEDIUM ? 8 : 0)))]
 
 // === Types ===
 
@@ -106,7 +117,6 @@ void graphics_setup() {
     REG_BG2PB_SUB = 0;
     REG_BG2PD_SUB = BIT(8);
 
-
     // Reset all backgrounds
     dmaFillHalfWords(0, BG_BMP_RAM(0), SCREEN_WIDTH * SCREEN_HEIGHT);
     dmaFillHalfWords(0, BG_BMP_RAM(3), SCREEN_WIDTH * SCREEN_HEIGHT);
@@ -151,6 +161,8 @@ void clear_game_screen() {
     dmaFillHalfWords(0, BG_BMP_RAM(0), SCREEN_WIDTH * SCREEN_HEIGHT);
 }
 
+// === Intermediat Screens ===
+
 void show_game_over() {
     REG_DISPCNT_SUB |= DISPLAY_BG2_ACTIVE;
     REG_DISPCNT_SUB &= ~DISPLAY_BG0_ACTIVE;
@@ -167,4 +179,19 @@ void show_begin() {
 
 void hide_begin() {
     swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
+}
+
+// === Selection colors ===
+// (contains a bit of controller and game logic)
+
+void set_game_mode(GameMode new_mode) {
+    MODE_TO_PALETTE(game_mode) = TRANSPARENT;
+    game_mode = new_mode;
+    MODE_TO_PALETTE(game_mode) = SELECTED_COLOR;
+}
+
+void set_game_speed(GameSpeed new_speed) {
+    SPEED_TO_PALETTE(game_speed) = TRANSPARENT;
+    game_speed = new_speed;
+    SPEED_TO_PALETTE(new_speed) = SELECTED_COLOR;
 }

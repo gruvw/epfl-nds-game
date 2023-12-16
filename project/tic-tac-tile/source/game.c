@@ -7,35 +7,32 @@
 #include "nds/input.h"
 #include "nds/interrupts.h"
 
+// === Touch Areas ===
+
+// Game mode
 #define SINGLE_PLAYER_TOUCHED(pos) (56 <= pos.px && pos.px <= 199 && 96 <= pos.py && pos.py <= 112)
 #define TWO_PLAYER_TOUCHED(pos) (56 <= pos.px && pos.px <= 199 && 128 <= pos.py && pos.py <= 144)
-#define TWO_PLAYER_WIFI_TOUCHED(pos) (56 <= pos.px && pos.px <= 199 && 160 <= pos.py && pos.py <= 176)
+#define TWO_PLAYER_WIFI_TOUCHED(pos) \
+    (56 <= pos.px && pos.px <= 199 && 160 <= pos.py && pos.py <= 176)
+
+// Game speed
+#define FAST_TOUCHED(pos) (32 <= pos.px && pos.px <= 63 && 48 <= pos.py && pos.py <= 79)
+#define MEDIUM_TOUCHED(pos) (112 <= pos.px && pos.px <= 143 && 48 <= pos.py && pos.py <= 79)
+#define SLOW_TOUCHED(pos) (192 <= pos.px && pos.px <= 223 && 48 <= pos.py && pos.py <= 79)
 
 #define PRESSED(key) ((~REG_KEYINPUT & key) != 0)
 
-// === Types ===
-
-typedef enum {
-    SINGLE_PLAYER,
-    TWO_PLAYERS_LOCAL,
-    TWO_PLAYERS_WIFI, // TODO
-} GameMode;
-
-typedef enum {
-    BEGIN,
-    RUNNING,
-    FINISHED,
-} GameState;
-
 // === Gloabals ===
 
+// State
+GameState game_state;
 Board board;
 Coords selection_coords;
-
-GameMode game_mode;
-GameState game_state;
-
 Cell active_side;
+
+// Settings
+GameMode game_mode;
+GameSpeed game_speed;
 
 // === Utilities ===
 
@@ -46,6 +43,7 @@ void reset_game() {
     active_side = CROSS;
 
     clear_game_screen();
+    show_begin();
 }
 
 void refresh_game_screen() {
@@ -58,9 +56,6 @@ void refresh_game_screen() {
 
 void keys_handler() {
     if (game_state == BEGIN) {
-        hide_game_over();
-        show_begin();
-
         if (PRESSED(KEY_START)) {
             game_state = RUNNING;
             hide_begin();
@@ -81,7 +76,7 @@ void keys_handler() {
             board = placed_cell(board, active_side, selection_coords);
             if (game_mode == SINGLE_PLAYER) {
                 board = bot_placed_cell(board);
-            } else if (game_mode == TWO_PLAYERS_LOCAL) {
+            } else if (game_mode == TWO_PLAYER_LOCAL) {
                 active_side = (active_side == CROSS) ? CIRCLE : CROSS;
             }
         }
@@ -109,6 +104,8 @@ void keys_handler() {
 
         if (PRESSED(KEY_START)) {
             reset_game();
+            hide_game_over();
+            show_begin();
         }
     }
 }
@@ -118,8 +115,8 @@ void keys_handler() {
 void game_setup() {
     // Golbals
     reset_game();
-    show_begin();
-    game_mode = SINGLE_PLAYER;
+    set_game_mode(SINGLE_PLAYER);
+    set_game_speed(SLOW);
 
     // Interrupts
     REG_KEYCNT = BIT(14) | KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT | KEY_A | KEY_START;
@@ -136,13 +133,17 @@ void game_loop() {
             touchRead(&pos);
 
             if (SINGLE_PLAYER_TOUCHED(pos)) {
-                game_mode = SINGLE_PLAYER;
-            }
-            if (TWO_PLAYER_TOUCHED(pos)) {
-                game_mode = TWO_PLAYERS_LOCAL;
-            }
-            if (TWO_PLAYER_WIFI_TOUCHED(pos)) {
-                game_mode = TWO_PLAYERS_WIFI;
+                set_game_mode(SINGLE_PLAYER);
+            } else if (TWO_PLAYER_TOUCHED(pos)) {
+                set_game_mode(TWO_PLAYER_LOCAL);
+            } else if (TWO_PLAYER_WIFI_TOUCHED(pos)) {
+                set_game_mode(TWO_PLAYER_WIFI);
+            } else if (FAST_TOUCHED(pos)) {
+                set_game_speed(FAST);
+            } else if (MEDIUM_TOUCHED(pos)) {
+                set_game_speed(MEDIUM);
+            } else if (SLOW_TOUCHED(pos)) {
+                set_game_speed(SLOW);
             }
         }
 
