@@ -8,6 +8,8 @@
 typedef uint32_t Board;
 typedef unsigned char Coords;
 
+#ifndef INCLUDE_BOARD
+#define INCLUDE_BOARD
 typedef enum {
     EMPTY,
     CROSS,
@@ -19,6 +21,7 @@ typedef struct {
     Coords start;
     Coords direction;
 } Winner;
+#endif
 
 extern const Board START_BOARD, CELL_MASK;
 

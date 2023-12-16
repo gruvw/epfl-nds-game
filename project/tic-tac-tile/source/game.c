@@ -1,5 +1,6 @@
 #include <stdio.h>
 
+#include "bot.h"
 #include "graphics.h"
 #include "nds.h"
 #include "nds/arm9/input.h"
@@ -27,7 +28,7 @@ typedef enum {
 Board board;
 Coords selection_coords;
 
-GameMode mode;
+GameMode game_mode;
 GameState game_state;
 
 Cell active_side;
@@ -70,7 +71,11 @@ void keys_handler() {
             selection_coords -= ROW_INCR;
         } else if (PRESSED(KEY_A) && cell_at(board, selection_coords) == EMPTY) {
             board = placed_cell(board, active_side, selection_coords);
-            active_side = (active_side == CROSS) ? CIRCLE : CROSS;
+            if (game_mode == SINGLE_PLAYER) {
+                board = bot_placed_cell(board);
+            } else if (game_mode == TWO_PLAYERS_LOCAL) {
+                active_side = (active_side == CROSS) ? CIRCLE : CROSS;
+            }
         }
 
         if (winner_of(board).side != EMPTY || is_full(board) || PRESSED(KEY_START)) {
@@ -103,7 +108,7 @@ void keys_handler() {
 void game_setup() {
     // Golbals
     reset_game();
-    mode = TWO_PLAYERS_LOCAL;
+    game_mode = SINGLE_PLAYER;
 
     // Interrupts
     REG_KEYCNT = BIT(14) | KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT | KEY_A | KEY_START;
