@@ -59,4 +59,4 @@ dkms.conf
 *.arm9
 *.elf
 *.nds
-*/**/build
+build/*
