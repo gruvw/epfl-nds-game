@@ -7,6 +7,10 @@
 #include "nds/input.h"
 #include "nds/interrupts.h"
 
+#define SINGLE_PLAYER_TOUCHED(pos) (56 <= pos.px && pos.px <= 199 && 96 <= pos.py && pos.py <= 112)
+#define TWO_PLAYER_TOUCHED(pos) (56 <= pos.px && pos.px <= 199 && 128 <= pos.py && pos.py <= 144)
+#define TWO_PLAYER_WIFI_TOUCHED(pos) (56 <= pos.px && pos.px <= 199 && 160 <= pos.py && pos.py <= 176)
+
 #define PRESSED(key) ((~REG_KEYINPUT & key) != 0)
 
 // === Types ===
@@ -14,7 +18,7 @@
 typedef enum {
     SINGLE_PLAYER,
     TWO_PLAYERS_LOCAL,
-    TWO_PLAYERS_WIFI,
+    TWO_PLAYERS_WIFI, // TODO
 } GameMode;
 
 typedef enum {
@@ -119,6 +123,22 @@ void game_setup() {
 
 void game_loop() {
     while (1) {
+        if (game_state == BEGIN) {
+            scanKeys();
+            touchPosition pos;
+            touchRead(&pos);
+
+            if (SINGLE_PLAYER_TOUCHED(pos)) {
+                game_mode = SINGLE_PLAYER;
+            }
+            if (TWO_PLAYER_TOUCHED(pos)) {
+                game_mode = TWO_PLAYERS_LOCAL;
+            }
+            if (TWO_PLAYER_WIFI_TOUCHED(pos)) {
+                game_mode = TWO_PLAYERS_WIFI;
+            }
+        }
+
         swiWaitForVBlank();
     }
 }

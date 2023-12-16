@@ -69,7 +69,6 @@ bool three_same(Board board, Coords start, Coords direction) {
 
 Winner winner_of(Board board) {
     for (size_t i = 0; i < sizeof(WINS) / sizeof(*WINS); i += 2) {
-        printf("%d ", WINS[i]);
         if (three_same(board, WINS[i], WINS[i + 1])) {
             return (Winner) {
                 cell_at(board, WINS[i]),
