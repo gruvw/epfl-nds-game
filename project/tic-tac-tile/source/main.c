@@ -13,3 +13,6 @@ int main(void) {
     game_setup();
     game_loop();
 }
+
+// ASK glitching dmaCopy X, O, select
+// ASK -O1 optimizations fail

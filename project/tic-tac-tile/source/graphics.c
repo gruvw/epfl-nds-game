@@ -182,7 +182,7 @@ void hide_begin() {
 }
 
 // === Selection colors ===
-// (contains a bit of controller and game logic)
+// (contains a bit of controller / game logic)
 
 void set_game_mode(GameMode new_mode) {
     MODE_TO_PALETTE(game_mode) = TRANSPARENT;

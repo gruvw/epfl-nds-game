@@ -32,9 +32,7 @@ extern const Coords
     NO_INCR, COL_INCR, ROW_INCR, DIAG_DOWN_INCR, DIAG_UP_INCR;
 
 Board placed_cell(Board board, Cell cell, Coords coords);
-
 Cell cell_at(Board board, Coords coords);
-
 bool is_full(Board board);
-
 Winner winner_of(Board board);
+bool is_finished(Board board);

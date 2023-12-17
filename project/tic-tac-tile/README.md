@@ -8,9 +8,9 @@ This game is a [Tic-Tac-Toe](https://en.wikipedia.org/wiki/Tic-tac-toe) clone on
 
 <!-- TODO -->
 
-## Insturctions
+## Instructions
 
-<!-- TODO -->
+<!-- TODO how to play + make build -->
 
 ### Game modes
 
@@ -19,3 +19,13 @@ It features 3 game modes:
 * Single player against bot
 * Two player mode, single NDS
 * Two player mode, two NDS over Wi-Fi 
+
+## Roadmap
+
+- [ ] AI (minimax)
+- [ ] Timer
+- [ ] Music
+- [ ] Polish code + add comments
+- [ ] Fully test game
+- [ ] Write README
+- [ ] Wi-Fi

@@ -60,6 +60,10 @@ bool is_full(Board board) {
     return true;
 }
 
+bool is_finished(Board board) {
+    return winner_of(board).side != EMPTY || is_full(board);
+}
+
 bool three_same(Board board, Coords start, Coords direction) {
     Cell first = cell_at(board, start);
     Cell second = cell_at(board, start + direction);

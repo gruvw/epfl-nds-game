@@ -7,20 +7,20 @@
 #include "nds/input.h"
 #include "nds/interrupts.h"
 
-// === Touch Areas ===
+// === Inputs / Touch Areas ===
 
 // Game mode
 #define SINGLE_PLAYER_TOUCHED(pos) (56 <= pos.px && pos.px <= 199 && 96 <= pos.py && pos.py <= 112)
 #define TWO_PLAYER_TOUCHED(pos) (56 <= pos.px && pos.px <= 199 && 128 <= pos.py && pos.py <= 144)
-#define TWO_PLAYER_WIFI_TOUCHED(pos) \
-    (56 <= pos.px && pos.px <= 199 && 160 <= pos.py && pos.py <= 176)
+#define TWO_PLAYER_WIFI_TOUCHED(pos) (56 <= pos.px && pos.px <= 199 && 160 <= pos.py && pos.py <= 176)
 
 // Game speed
 #define FAST_TOUCHED(pos) (32 <= pos.px && pos.px <= 63 && 48 <= pos.py && pos.py <= 79)
 #define MEDIUM_TOUCHED(pos) (112 <= pos.px && pos.px <= 143 && 48 <= pos.py && pos.py <= 79)
 #define SLOW_TOUCHED(pos) (192 <= pos.px && pos.px <= 223 && 48 <= pos.py && pos.py <= 79)
 
-#define PRESSED(key) ((~REG_KEYINPUT & key) != 0)
+// Keys
+#define PRESSED_ONCE(key) ((~REG_KEYINPUT & (key)) != 0 && ((pressed_keys & (key)) == 0) && ((pressed_keys |= (key)) || 1))
 
 // === Gloabals ===
 
@@ -29,6 +29,7 @@ GameState game_state;
 Board board;
 Coords selection_coords;
 Cell active_side;
+u16 pressed_keys;
 
 // Settings
 GameMode game_mode;
@@ -55,24 +56,26 @@ void refresh_game_screen() {
 // === Interrupt handlers ===
 
 void keys_handler() {
+    pressed_keys = 0;
+
     if (game_state == BEGIN) {
-        if (PRESSED(KEY_START)) {
+        if (PRESSED_ONCE(KEY_START)) {
             game_state = RUNNING;
             hide_begin();
             refresh_game_screen();
         }
     }
 
-    else if (game_state == RUNNING) {
-        if (PRESSED(KEY_RIGHT) && selection_coords < BOTTOM_RIGHT) {
+    if (game_state == RUNNING) {
+        if (PRESSED_ONCE(KEY_RIGHT) && selection_coords < BOTTOM_RIGHT) {
             selection_coords += COL_INCR;
-        } else if (PRESSED(KEY_LEFT) && selection_coords > TOP_LEFT) {
+        } else if (PRESSED_ONCE(KEY_LEFT) && selection_coords > TOP_LEFT) {
             selection_coords -= COL_INCR;
-        } else if (PRESSED(KEY_DOWN) && selection_coords < BOTTOM_LEFT) {
+        } else if (PRESSED_ONCE(KEY_DOWN) && selection_coords < BOTTOM_LEFT) {
             selection_coords += ROW_INCR;
-        } else if (PRESSED(KEY_UP) && selection_coords > TOP_RIGHT) {
+        } else if (PRESSED_ONCE(KEY_UP) && selection_coords > TOP_RIGHT) {
             selection_coords -= ROW_INCR;
-        } else if (PRESSED(KEY_A) && cell_at(board, selection_coords) == EMPTY) {
+        } else if (PRESSED_ONCE(KEY_A) && cell_at(board, selection_coords) == EMPTY) {
             board = placed_cell(board, active_side, selection_coords);
             if (game_mode == SINGLE_PLAYER) {
                 board = bot_placed_cell(board);
@@ -81,7 +84,7 @@ void keys_handler() {
             }
         }
 
-        if (winner_of(board).side != EMPTY || is_full(board) || PRESSED(KEY_START)) {
+        if (is_finished(board) || PRESSED_ONCE(KEY_START)) {
             game_state = FINISHED;
         }
 
@@ -102,7 +105,7 @@ void keys_handler() {
 
         draw_board(board);
 
-        if (PRESSED(KEY_START)) {
+        if (PRESSED_ONCE(KEY_START)) {
             reset_game();
             hide_game_over();
             show_begin();
@@ -129,6 +132,7 @@ void game_loop() {
     while (1) {
         if (game_state == BEGIN) {
             scanKeys();
+
             touchPosition pos;
             touchRead(&pos);
 
