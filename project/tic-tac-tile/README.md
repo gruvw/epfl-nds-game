@@ -22,7 +22,7 @@ It features 3 game modes:
 
 ## Roadmap
 
-- [ ] AI (minimax)
+- [X] AI (minimax)
 - [ ] Graphics images finish
 - [ ] Timer
 - [ ] Music

@@ -39,7 +39,7 @@ GameSpeed game_speed;
 
 void reset_game() {
     board = START_BOARD;
-    selection_coords = TOP_LEFT;
+    selection_coords = MID_MID;
     game_state = BEGIN;
     active_side = STARTING_SIDE;
 
@@ -67,14 +67,14 @@ void keys_handler() {
     }
 
     if (game_state == RUNNING) {
-        if (PRESSED_ONCE(KEY_RIGHT)) {
-            selection_coords = next_empty(board, selection_coords);
-        } else if (PRESSED_ONCE(KEY_LEFT)) {
-            selection_coords = prev_empty(board, selection_coords);
-        } else if (PRESSED_ONCE(KEY_DOWN)) {
-            selection_coords = bellow_empty(board, selection_coords);
-        } else if (PRESSED_ONCE(KEY_UP)) {
-            selection_coords = above_empty(board, selection_coords);
+        if (PRESSED_ONCE(KEY_RIGHT) && selection_coords < BOTTOM_RIGHT) {
+            selection_coords += COL_INCR;
+        } else if (PRESSED_ONCE(KEY_LEFT) && selection_coords > TOP_LEFT) {
+            selection_coords -= COL_INCR;
+        } else if (PRESSED_ONCE(KEY_DOWN) && selection_coords < BOTTOM_LEFT) {
+            selection_coords += ROW_INCR;
+        } else if (PRESSED_ONCE(KEY_UP) && selection_coords > TOP_RIGHT) {
+            selection_coords -= ROW_INCR;
         } else if (PRESSED_ONCE(KEY_A) && cell_at(board, selection_coords) == EMPTY) {
             board = placed_cell(board, active_side, selection_coords);
             if (game_mode == SINGLE_PLAYER && !is_finished(board)) {

@@ -1,8 +1,6 @@
 #include "bot.h"
 #include <stdio.h>
 
-// TODO hard code first move (too slow)
-
 typedef struct {
     int score;
     Coords move;
@@ -24,7 +22,6 @@ BotMove minimax(Board board, Cell side) {
         if (cell_at(board, move) == EMPTY) {
             Board test_board = placed_cell(board, side, move);
             int score = -minimax(test_board, OTHER_SIDE(side)).score;
-            printf("score %d\n", score);
             if (score > best_move.score) {
                 best_move = (BotMove) { score, move };
             }
@@ -36,7 +33,17 @@ BotMove minimax(Board board, Cell side) {
 
 Board bot_placed_cell(Board board) {
     // Assumes that bot can play (game not yet finished)
-    BotMove move = minimax(board, BOT_SIDE);
 
-    return placed_cell(board, BOT_SIDE, move.move);
+    if (is_second_move(board)) {
+        Coords best_moves[] = {
+            MID_MID, TOP_LEFT, MID_MID,
+            TOP_LEFT, TOP_LEFT, TOP_RIGHT,
+            MID_MID, TOP_MID, MID_MID,
+        };
+        return placed_cell(board, BOT_SIDE, best_moves[first_move_coords(board)]);
+    }
+
+    Coords move = minimax(board, BOT_SIDE).move;
+
+    return placed_cell(board, BOT_SIDE, move);
 }
