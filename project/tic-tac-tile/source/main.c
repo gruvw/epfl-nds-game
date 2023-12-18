@@ -25,3 +25,4 @@ int main(void) {
 
 // ASK glitching dmaCopy X, O, select
 // ASK -O1 optimizations fail
+// ASK second NDS to test wifi

@@ -23,20 +23,19 @@
 // Main display
 #define BG_PALETTE_INCR 1
 #define CROSS_PALETTE_INCR (BG_PALETTE_INCR + 2)
-#define CIRCLE_PALETTE_INCR (CROSS_PALETTE_INCR + 1)
-#define SELECT_PALETTE_INCR (CIRCLE_PALETTE_INCR + 1)
-#define BEGIN_INCR (SELECT_PALETTE_INCR + 1)
+#define CIRCLE_PALETTE_INCR (CROSS_PALETTE_INCR + 6)
+#define SELECT_PALETTE_INCR (CIRCLE_PALETTE_INCR + 3)
+#define BEGIN_INCR (SELECT_PALETTE_INCR + 2)
 
 // Sub display
-#define BG_SUB_FINISHED_INCR 11
+#define BG_SUB_FINISHED_INCR 12
 
 // === Palette colors mapping ===
 
-#define TRANSPARENT 0
-#define SELECTED_COLOR RGB15(0, 18, 31)
+#define SELECTED_COLOR RGB15(5, 0, 30)
 
-#define MODE_TO_PALETTE(mode) BG_PALETTE_SUB[(1 + ((mode) == SINGLE_PLAYER ? 9 : ((mode) == TWO_PLAYER_LOCAL ? 2 : 6)))]
-#define SPEED_TO_PALETTE(mode) BG_PALETTE_SUB[(1 + ((mode) == SLOW ? 5 : ((mode) == MEDIUM ? 8 : 0)))]
+#define MODE_TO_PALETTE(mode) BG_PALETTE_SUB[((mode) == SINGLE_PLAYER ? 11 : ((mode) == TWO_PLAYER_LOCAL ? 5 : 8))]
+#define SPEED_TO_PALETTE(mode) BG_PALETTE_SUB[((mode) == SLOW ? 7 : ((mode) == MEDIUM ? 10 : 1))]
 
 // === Types ===
 
@@ -65,23 +64,23 @@ void set_bg_transform(size_t bg_nb) {
 
 // === Images Palette Corrections ===
 
-void patch_palette(void * data, size_t len, int increment) {
+void patch_palette(void * data, size_t len, int increment, bool background) {
     unsigned char * r = data;
     for (size_t i = 0; i < len; i++) {
-        r[i] += (r[i] == 0) ? 0 : increment;
+        r[i] += (r[i] == 0 && !background) ? 0 : increment;
     }
 }
 
 void images_palette_correction() {
     // Main display
-    patch_palette((void *) b_backgroundBitmap, b_backgroundBitmapLen, BG_PALETTE_INCR);
-    patch_palette((void *) c_crossBitmap, c_crossBitmapLen, CROSS_PALETTE_INCR);
-    patch_palette((void *) d_circleBitmap, d_circleBitmapLen, CIRCLE_PALETTE_INCR);
-    patch_palette((void *) e_selectBitmap, e_selectBitmapLen, SELECT_PALETTE_INCR);
-    patch_palette((void *) h_beginBitmap, h_beginBitmapLen, BEGIN_INCR);
+    patch_palette((void *) b_backgroundBitmap, b_backgroundBitmapLen, BG_PALETTE_INCR, true);
+    patch_palette((void *) c_crossBitmap, c_crossBitmapLen, CROSS_PALETTE_INCR, false);
+    patch_palette((void *) d_circleBitmap, d_circleBitmapLen, CIRCLE_PALETTE_INCR, false);
+    patch_palette((void *) e_selectBitmap, e_selectBitmapLen, SELECT_PALETTE_INCR, false);
+    patch_palette((void *) h_beginBitmap, h_beginBitmapLen, BEGIN_INCR, true);
 
     // Sub display
-    patch_palette((void *) i_sub_finishedBitmap, i_sub_finishedBitmapLen, BG_SUB_FINISHED_INCR);
+    patch_palette((void *) i_sub_finishedBitmap, i_sub_finishedBitmapLen, BG_SUB_FINISHED_INCR, true);
 }
 
 // === Backgrounds ===
@@ -185,13 +184,13 @@ void hide_begin() {
 // (contains a bit of controller / game logic)
 
 void set_game_mode(GameMode new_mode) {
-    MODE_TO_PALETTE(game_mode) = TRANSPARENT;
+    MODE_TO_PALETTE(game_mode) = MODE_TO_PALETTE(new_mode);
     game_mode = new_mode;
     MODE_TO_PALETTE(game_mode) = SELECTED_COLOR;
 }
 
 void set_game_speed(GameSpeed new_speed) {
-    SPEED_TO_PALETTE(game_speed) = TRANSPARENT;
+    SPEED_TO_PALETTE(game_speed) = SPEED_TO_PALETTE(new_speed);
     game_speed = new_speed;
     SPEED_TO_PALETTE(new_speed) = SELECTED_COLOR;
 }
