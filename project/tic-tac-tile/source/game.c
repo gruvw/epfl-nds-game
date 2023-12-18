@@ -41,7 +41,7 @@ void reset_game() {
     board = START_BOARD;
     selection_coords = TOP_LEFT;
     game_state = BEGIN;
-    active_side = CROSS;
+    active_side = STARTING_SIDE;
 
     clear_game_screen();
     show_begin();
@@ -67,20 +67,20 @@ void keys_handler() {
     }
 
     if (game_state == RUNNING) {
-        if (PRESSED_ONCE(KEY_RIGHT) && selection_coords < BOTTOM_RIGHT) {
-            selection_coords += COL_INCR;
-        } else if (PRESSED_ONCE(KEY_LEFT) && selection_coords > TOP_LEFT) {
-            selection_coords -= COL_INCR;
-        } else if (PRESSED_ONCE(KEY_DOWN) && selection_coords < BOTTOM_LEFT) {
-            selection_coords += ROW_INCR;
-        } else if (PRESSED_ONCE(KEY_UP) && selection_coords > TOP_RIGHT) {
-            selection_coords -= ROW_INCR;
+        if (PRESSED_ONCE(KEY_RIGHT)) {
+            selection_coords = next_empty(board, selection_coords);
+        } else if (PRESSED_ONCE(KEY_LEFT)) {
+            selection_coords = prev_empty(board, selection_coords);
+        } else if (PRESSED_ONCE(KEY_DOWN)) {
+            selection_coords = bellow_empty(board, selection_coords);
+        } else if (PRESSED_ONCE(KEY_UP)) {
+            selection_coords = above_empty(board, selection_coords);
         } else if (PRESSED_ONCE(KEY_A) && cell_at(board, selection_coords) == EMPTY) {
             board = placed_cell(board, active_side, selection_coords);
-            if (game_mode == SINGLE_PLAYER) {
+            if (game_mode == SINGLE_PLAYER && !is_finished(board)) {
                 board = bot_placed_cell(board);
             } else if (game_mode == TWO_PLAYER_LOCAL) {
-                active_side = (active_side == CROSS) ? CIRCLE : CROSS;
+                active_side = OTHER_SIDE(active_side);
             }
         }
 
@@ -136,6 +136,7 @@ void game_loop() {
             touchPosition pos;
             touchRead(&pos);
 
+            // BUG does not work after a single game with AI
             if (SINGLE_PLAYER_TOUCHED(pos)) {
                 set_game_mode(SINGLE_PLAYER);
             } else if (TWO_PLAYER_TOUCHED(pos)) {

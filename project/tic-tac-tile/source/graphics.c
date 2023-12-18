@@ -148,7 +148,7 @@ void draw_select(Coords coords) {
 }
 
 void draw_board(Board board) {
-    for (Coords c = 0; c <= BOTTOM_RIGHT; c++) {
+    for (Coords c = TOP_LEFT; c <= BOTTOM_RIGHT; c++) {
         if (cell_at(board, c) != EMPTY) {
             const void * side = cell_at(board, c) == CROSS ? c_crossBitmap : d_circleBitmap;
             ScreenPosition pos = position_from_coords(c);
