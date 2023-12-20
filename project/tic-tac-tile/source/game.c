@@ -30,6 +30,7 @@ Board board;
 Coords selection_coords;
 Cell active_side;
 u16 pressed_keys;
+u8 time_left;
 
 // Settings
 GameMode game_mode;
@@ -42,6 +43,7 @@ void reset_game() {
     selection_coords = MID_MID;
     game_state = BEGIN;
     active_side = STARTING_SIDE;
+    set_time_left(STARTING_TIME);
 
     clear_game_screen();
     show_begin();
@@ -54,6 +56,10 @@ void refresh_game_screen() {
 }
 
 // === Interrupt handlers ===
+
+void timer_handler() {
+    set_time_left(time_left - 1);
+}
 
 void keys_handler() {
     pressed_keys = 0;
@@ -121,7 +127,14 @@ void game_setup() {
     set_game_mode(SINGLE_PLAYER);
     set_game_speed(SLOW);
 
-    // Interrupts
+    // Timer Interrupts
+    int frequency = 1;
+    TIMER_DATA(0) = TIMER_FREQ_64(frequency);
+    TIMER_CR(0) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
+    irqSet(IRQ_TIMER(0), &timer_handler);
+    irqEnable(IRQ_TIMER(0));
+
+    // Button Interrupts
     REG_KEYCNT = BIT(14) | KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT | KEY_A | KEY_START;
 
     irqSet(IRQ_KEYS, &keys_handler);

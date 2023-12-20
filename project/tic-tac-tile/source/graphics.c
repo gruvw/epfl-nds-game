@@ -180,8 +180,10 @@ void hide_begin() {
     swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
 }
 
-// === Selection colors ===
-// (contains a bit of controller / game logic)
+// === Graphics to controller ===
+// (contains a mix of graphics and controller / game logic)
+
+// --- Selection colors ---
 
 void set_game_mode(GameMode new_mode) {
     MODE_TO_PALETTE(game_mode) = MODE_TO_PALETTE(new_mode);
@@ -193,4 +195,14 @@ void set_game_speed(GameSpeed new_speed) {
     SPEED_TO_PALETTE(game_speed) = SPEED_TO_PALETTE(new_speed);
     game_speed = new_speed;
     SPEED_TO_PALETTE(new_speed) = SELECTED_COLOR;
+}
+
+// --- Timer and speed ---
+
+void set_time_left(u8 new_time_left) {
+    time_left = new_time_left;
+    for (size_t t = 0; t < STARTING_TIME; t++) {
+        BG_MAP_RAM_SUB(0)[68 + t] = (t >= new_time_left ? 0 : f_sub_backgroundMap[68 + t]);
+        BG_MAP_RAM_SUB(0)[68 + 32 + t] = (t >= new_time_left ? 0 : f_sub_backgroundMap[68 + 32 + t]);
+    }
 }
