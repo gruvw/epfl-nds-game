@@ -24,7 +24,8 @@ It features 3 game modes:
 
 - [X] AI (minimax)
 - [X] Graphics images finish
-- [ ] Timer
+- [X] Timer
+- [ ] Game Over Sprite
 - [ ] Music
 - [ ] Polish code + add comments
 - [ ] Fully test game

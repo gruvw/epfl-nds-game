@@ -16,7 +16,3 @@ void hide_game_over();
 void show_begin();
 void hide_begin();
 
-void set_game_mode(GameMode new_mode);
-void set_game_speed(GameSpeed speed);
-
-void set_time_left(u8 new_time_left);

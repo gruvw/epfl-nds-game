@@ -31,6 +31,8 @@ typedef enum {
 
 extern GameMode game_mode;
 extern GameSpeed game_speed;
+
+extern TimerState timer_state;
 extern u8 time_left;
 
 void game_setup();

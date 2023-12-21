@@ -2,6 +2,7 @@
 
 #include "bot.h"
 #include "graphics.h"
+#include "controller.h"
 #include "nds.h"
 #include "nds/arm9/input.h"
 #include "nds/input.h"
@@ -26,11 +27,13 @@
 
 // State
 GameState game_state;
+GameState next_game_state;
+TimerState timer_state;
 Board board;
 Coords selection_coords;
 Cell active_side;
 u16 pressed_keys;
-u8 time_left;
+u8 time_left; // in progress bar tiles (from 0 to STARTING_TIME)
 
 // Settings
 GameMode game_mode;
@@ -43,6 +46,8 @@ void reset_game() {
     selection_coords = MID_MID;
     game_state = BEGIN;
     active_side = STARTING_SIDE;
+
+    set_timer_state(UNUSED);
     set_time_left(STARTING_TIME);
 
     clear_game_screen();
@@ -57,8 +62,52 @@ void refresh_game_screen() {
 
 // === Interrupt handlers ===
 
+void timer_fsm() {
+    if (game_state == next_game_state) {
+        return;
+    }
+
+    if (next_game_state == BEGIN) {
+        reset_game();
+        hide_game_over();
+        show_begin();
+    }
+
+    if (next_game_state == RUNNING) {
+        set_timer_state(STARTED);
+        hide_begin();
+        refresh_game_screen();
+    }
+
+    if (next_game_state == FINISHED) {
+        set_timer_state(OVER);
+        show_game_over();
+
+        Winner a = winner_of(board);
+        clear_game_screen();
+
+        if (a.side != EMPTY) {
+            for (size_t i = 0; i < SIDE; i++) {
+                draw_select(a.start + i * a.direction);
+            }
+        }
+
+        draw_board(board);
+    }
+
+    game_state = next_game_state;
+
+}
+
 void timer_handler() {
-    set_time_left(time_left - 1);
+    if (game_state == RUNNING && timer_state == STARTED) {
+        if (time_left > 0) {
+            set_time_left(time_left - 1);
+        }
+        if (time_left <= 0){
+            next_game_state = FINISHED;
+        }
+    }
 }
 
 void keys_handler() {
@@ -66,9 +115,7 @@ void keys_handler() {
 
     if (game_state == BEGIN) {
         if (PRESSED_ONCE(KEY_START)) {
-            game_state = RUNNING;
-            hide_begin();
-            refresh_game_screen();
+            next_game_state = RUNNING;
         }
     }
 
@@ -88,33 +135,42 @@ void keys_handler() {
             } else if (game_mode == TWO_PLAYER_LOCAL) {
                 active_side = OTHER_SIDE(active_side);
             }
+            set_time_left(STARTING_TIME);
         }
 
         if (is_finished(board) || PRESSED_ONCE(KEY_START)) {
-            game_state = FINISHED;
+            next_game_state = FINISHED;
         }
 
         refresh_game_screen();
     }
 
     if (game_state == FINISHED) {
-        show_game_over();
-
-        Winner a = winner_of(board);
-        clear_game_screen();
-
-        if (a.side != EMPTY) {
-            for (size_t i = 0; i < SIDE; i++) {
-                draw_select(a.start + i * a.direction);
-            }
-        }
-
-        draw_board(board);
-
         if (PRESSED_ONCE(KEY_START)) {
-            reset_game();
-            hide_game_over();
-            show_begin();
+            next_game_state = BEGIN;
+        }
+    }
+}
+
+void touch_handler() {
+    if (game_state == BEGIN) {
+        scanKeys();
+
+        touchPosition pos;
+        touchRead(&pos);
+
+        if (SINGLE_PLAYER_TOUCHED(pos)) {
+            set_game_mode(SINGLE_PLAYER);
+        } else if (TWO_PLAYER_TOUCHED(pos)) {
+            set_game_mode(TWO_PLAYER_LOCAL);
+        } else if (TWO_PLAYER_WIFI_TOUCHED(pos)) {
+            set_game_mode(TWO_PLAYER_WIFI);
+        } else if (FAST_TOUCHED(pos)) {
+            set_game_speed(FAST);
+        } else if (MEDIUM_TOUCHED(pos)) {
+            set_game_speed(MEDIUM);
+        } else if (SLOW_TOUCHED(pos)) {
+            set_game_speed(SLOW);
         }
     }
 }
@@ -124,13 +180,18 @@ void keys_handler() {
 void game_setup() {
     // Golbals
     reset_game();
+
+    // Default game settings (not reset on game over)
     set_game_mode(SINGLE_PLAYER);
     set_game_speed(SLOW);
 
     // Timer Interrupts
-    int frequency = 1;
-    TIMER_DATA(0) = TIMER_FREQ_64(frequency);
-    TIMER_CR(0) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
+    TIMER_DATA(1) = TIMER_FREQ_64(50); // timer FSM (update game 50 times per seconds)
+    TIMER_CR(1) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
+    irqSet(IRQ_TIMER(1), &timer_fsm);
+    irqEnable(IRQ_TIMER(1));
+
+    // Registers are set in `set_game_speed`
     irqSet(IRQ_TIMER(0), &timer_handler);
     irqEnable(IRQ_TIMER(0));
 
@@ -143,27 +204,7 @@ void game_setup() {
 
 void game_loop() {
     while (1) {
-        if (game_state == BEGIN) {
-            scanKeys();
-
-            touchPosition pos;
-            touchRead(&pos);
-
-            // BUG does not work after a single game with AI
-            if (SINGLE_PLAYER_TOUCHED(pos)) {
-                set_game_mode(SINGLE_PLAYER);
-            } else if (TWO_PLAYER_TOUCHED(pos)) {
-                set_game_mode(TWO_PLAYER_LOCAL);
-            } else if (TWO_PLAYER_WIFI_TOUCHED(pos)) {
-                set_game_mode(TWO_PLAYER_WIFI);
-            } else if (FAST_TOUCHED(pos)) {
-                set_game_speed(FAST);
-            } else if (MEDIUM_TOUCHED(pos)) {
-                set_game_speed(MEDIUM);
-            } else if (SLOW_TOUCHED(pos)) {
-                set_game_speed(SLOW);
-            }
-        }
+        touch_handler();
 
         swiWaitForVBlank();
     }

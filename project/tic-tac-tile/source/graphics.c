@@ -28,14 +28,7 @@
 #define BEGIN_INCR (SELECT_PALETTE_INCR + 2)
 
 // Sub display
-#define BG_SUB_FINISHED_INCR 12
-
-// === Palette colors mapping ===
-
-#define SELECTED_COLOR RGB15(5, 0, 30)
-
-#define MODE_TO_PALETTE(mode) BG_PALETTE_SUB[((mode) == SINGLE_PLAYER ? 11 : ((mode) == TWO_PLAYER_LOCAL ? 5 : 8))]
-#define SPEED_TO_PALETTE(mode) BG_PALETTE_SUB[((mode) == SLOW ? 7 : ((mode) == MEDIUM ? 10 : 1))]
+#define BG_SUB_FINISHED_INCR 13
 
 // === Types ===
 
@@ -178,31 +171,4 @@ void show_begin() {
 
 void hide_begin() {
     swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
-}
-
-// === Graphics to controller ===
-// (contains a mix of graphics and controller / game logic)
-
-// --- Selection colors ---
-
-void set_game_mode(GameMode new_mode) {
-    MODE_TO_PALETTE(game_mode) = MODE_TO_PALETTE(new_mode);
-    game_mode = new_mode;
-    MODE_TO_PALETTE(game_mode) = SELECTED_COLOR;
-}
-
-void set_game_speed(GameSpeed new_speed) {
-    SPEED_TO_PALETTE(game_speed) = SPEED_TO_PALETTE(new_speed);
-    game_speed = new_speed;
-    SPEED_TO_PALETTE(new_speed) = SELECTED_COLOR;
-}
-
-// --- Timer and speed ---
-
-void set_time_left(u8 new_time_left) {
-    time_left = new_time_left;
-    for (size_t t = 0; t < STARTING_TIME; t++) {
-        BG_MAP_RAM_SUB(0)[68 + t] = (t >= new_time_left ? 0 : f_sub_backgroundMap[68 + t]);
-        BG_MAP_RAM_SUB(0)[68 + 32 + t] = (t >= new_time_left ? 0 : f_sub_backgroundMap[68 + 32 + t]);
-    }
 }
