@@ -1,6 +1,8 @@
-#include "nds.h"
+#include <nds.h>
 
-#include "board.h"
+#include "../model/board.h"
+
+#include "sprites.h"
 #include "graphics.h"
 
 #include "j-cross-sprite.h"
@@ -60,9 +62,6 @@ void sprites_setup() {
 
     // Copy palette
     swiCopy(n_sprite_paletteBitmap, SPRITE_PALETTE_SUB + 1, 14);
-
-    // ASK why no need for tiles map with sprites
-    // ASK can we use swi and dma interchangably (does not work)
 }
 
 void show_game_over_sprites(Cell c, bool time) {

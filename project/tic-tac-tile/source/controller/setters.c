@@ -1,5 +1,8 @@
+#include <nds.h>
+
+#include "setters.h"
 #include "game.h"
-#include "nds.h"
+
 #include "f-sub-background.h"
 
 // === Palette colors mapping ===

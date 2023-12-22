@@ -1,7 +1,10 @@
 #include "nds/ndstypes.h"
 
 #ifndef INCLUDE_GAME
+
 #define INCLUDE_GAME
+#define STARTING_TIME 24
+
 typedef enum {
     SINGLE_PLAYER,
     TWO_PLAYER_LOCAL,
@@ -26,7 +29,6 @@ typedef enum {
   OVER,
 } TimerState;
 
-#define STARTING_TIME 24
 #endif
 
 extern GameMode game_mode;

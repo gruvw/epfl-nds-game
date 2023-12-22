@@ -1,13 +1,12 @@
 #include <stdio.h>
+#include <nds.h>
 
-#include "bot.h"
-#include "sprites.h"
-#include "graphics.h"
-#include "controller.h"
-#include "nds.h"
-#include "nds/arm9/input.h"
-#include "nds/input.h"
-#include "nds/interrupts.h"
+#include "../model/bot.h"
+#include "../view/sprites.h"
+#include "../view/graphics.h"
+
+#include "game.h"
+#include "setters.h"
 
 // === Inputs / Touch Areas ===
 

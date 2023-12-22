@@ -1,7 +1,8 @@
+#include <nds.h>
 #include <stddef.h>
-#include "nds/ndstypes.h"
-#include "board.h"
-#include "game.h"
+
+#include "../model/board.h"
+#include "../controller/game.h"
 
 void set_backgrounds();
 void graphics_setup();

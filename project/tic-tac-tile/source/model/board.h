@@ -1,4 +1,5 @@
 #include <stdbool.h>
+
 #include "sys/_stdint.h"
 
 #define OTHER_SIDE(side) ((side) == CROSS ? CIRCLE : CROSS)
@@ -8,11 +9,13 @@
 #define ROW(coords) ((coords) / SIDE)
 #define COL(coords) ((coords) % SIDE)
 
+#ifndef INCLUDE_BOARD
+
+#define INCLUDE_BOARD
+
 typedef uint32_t Board;
 typedef int8_t Coords;
 
-#ifndef INCLUDE_BOARD
-#define INCLUDE_BOARD
 typedef enum {
     EMPTY,
     CROSS,
@@ -24,6 +27,7 @@ typedef struct {
     Coords start;
     Coords direction;
 } Winner;
+
 #endif
 
 extern const Board START_BOARD, CELL_MASK;

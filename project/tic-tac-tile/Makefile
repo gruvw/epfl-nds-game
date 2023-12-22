@@ -14,7 +14,7 @@ include $(DEVKITARM)/ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:= $(shell basename $(CURDIR))
 BUILD		:= build
-SOURCES		:= source
+SOURCES		:= source source/controller source/view source/model
 DATA		:=
 INCLUDES	:= include
 GRAPHICS	:= data

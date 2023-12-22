@@ -1,5 +1,4 @@
 #include "bot.h"
-#include <stdio.h>
 
 typedef struct {
     int score;

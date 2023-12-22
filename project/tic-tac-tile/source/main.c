@@ -1,10 +1,7 @@
 #include <nds.h>
-#include <stdio.h>
 
-#include "game.h"
-#include "bot.h"
-#include "graphics.h"
-#include "nds/input.h"
+#include "controller/game.h"
+#include "view/graphics.h"
 
 int main(void) {
     // consoleDemoInit();
@@ -24,7 +21,8 @@ int main(void) {
     game_loop();
 }
 
-// ASK dmaCopy do not work
+// ASK why no need for tiles map with sprites
+// ASK can we use swi and dma interchangably (does not work)
 // ASK -O1 optimizations fail
 // ASK second NDS to test wifi
 // ASK wifi can lose packets ??

@@ -1,10 +1,14 @@
 #include <nds.h>
 #include <stddef.h>
-#include <string.h>
+
+#include "../controller/game.h"
+#include "../model/board.h"
+
+#include "graphics.h"
+#include "sprites.h"
 
 #include "a-palette.h"
 #include "b-background.h"
-#include "board.h"
 #include "c-cross.h"
 #include "d-circle.h"
 #include "e-select.h"
@@ -12,8 +16,6 @@
 #include "g-sub-palette.h"
 #include "h-begin.h"
 #include "i-sub-finished.h"
-#include "game.h"
-#include "sprites.h"
 
 // === Palette corrections ===
 
