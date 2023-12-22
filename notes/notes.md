@@ -151,6 +151,7 @@ Information:
   * `E`: 64 KiB
   * `H`: 32 KiB
   * `F`, `G`, `I`: 16 KiB
+* Background layers are on top of each other (`BG0` is the most external, `BG3` is the most internal), `BG0` on top of every other BG
 
 Configuration sequence:
 

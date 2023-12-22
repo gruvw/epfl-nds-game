@@ -20,9 +20,12 @@ int main(void) {
 
     graphics_setup();
     game_setup();
+
     game_loop();
 }
 
-// ASK glitching dmaCopy X, O, select
+// ASK dmaCopy do not work
 // ASK -O1 optimizations fail
 // ASK second NDS to test wifi
+// ASK wifi can lose packets ??
+// ASK sprites main sub

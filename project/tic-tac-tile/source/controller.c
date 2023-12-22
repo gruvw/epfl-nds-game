@@ -44,7 +44,12 @@ void set_game_speed(GameSpeed new_speed) {
 
 }
 
-// === Timer and speed ===
+// === Timer and progress ===
+
+void set_timer_state(TimerState new_timer_state) {
+    timer_state = new_timer_state;
+    BG_PALETTE_SUB[PROGRESS_PALETTE] = PROGRESS_COLOR(new_timer_state, game_speed);
+}
 
 void set_time_left(u8 new_time_left) {
     time_left = new_time_left;
@@ -53,9 +58,4 @@ void set_time_left(u8 new_time_left) {
         BG_MAP_RAM_SUB(0)[tile_up] = (t >= new_time_left ? 0 : f_sub_backgroundMap[tile_up]);
         BG_MAP_RAM_SUB(0)[tile_down] = (t >= new_time_left ? 0 : f_sub_backgroundMap[tile_down]);
     }
-}
-
-void set_timer_state(TimerState new_timer_state) {
-    timer_state = new_timer_state;
-    BG_PALETTE_SUB[PROGRESS_PALETTE] = PROGRESS_COLOR(new_timer_state, game_speed);
 }

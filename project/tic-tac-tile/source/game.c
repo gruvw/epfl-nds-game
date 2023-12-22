@@ -1,6 +1,7 @@
 #include <stdio.h>
 
 #include "bot.h"
+#include "sprites.h"
 #include "graphics.h"
 #include "controller.h"
 #include "nds.h"
@@ -33,7 +34,7 @@ Board board;
 Coords selection_coords;
 Cell active_side;
 u16 pressed_keys;
-u8 time_left; // in progress bar tiles (from 0 to STARTING_TIME)
+u8 time_left;  // in progress bar tiles (from 0 to STARTING_TIME)
 
 // Settings
 GameMode game_mode;
@@ -70,6 +71,7 @@ void timer_fsm() {
     if (next_game_state == BEGIN) {
         reset_game();
         hide_game_over();
+        hide_game_over_sprites();
         show_begin();
     }
 
@@ -93,10 +95,16 @@ void timer_fsm() {
         }
 
         draw_board(board);
+
+        // Show end sprites (winner and lost by time or not)
+        if (time_left > 0) {
+            show_game_over_sprites(a.side, false);
+        } else {
+            show_game_over_sprites(OTHER_SIDE(active_side), true);
+        }
     }
 
     game_state = next_game_state;
-
 }
 
 void timer_handler() {
@@ -104,7 +112,7 @@ void timer_handler() {
         if (time_left > 0) {
             set_time_left(time_left - 1);
         }
-        if (time_left <= 0){
+        if (time_left <= 0) {
             next_game_state = FINISHED;
         }
     }
@@ -186,7 +194,7 @@ void game_setup() {
     set_game_speed(SLOW);
 
     // Timer Interrupts
-    TIMER_DATA(1) = TIMER_FREQ_64(50); // timer FSM (update game 50 times per seconds)
+    TIMER_DATA(1) = TIMER_FREQ_64(50);  // timer FSM (update game 50 times per seconds)
     TIMER_CR(1) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
     irqSet(IRQ_TIMER(1), &timer_fsm);
     irqEnable(IRQ_TIMER(1));

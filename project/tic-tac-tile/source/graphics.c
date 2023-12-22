@@ -12,11 +12,8 @@
 #include "g-sub-palette.h"
 #include "h-begin.h"
 #include "i-sub-finished.h"
-#include "nds/arm9/background.h"
-#include "nds/arm9/video.h"
-#include "nds/dma.h"
-#include "nds/ndstypes.h"
 #include "game.h"
+#include "sprites.h"
 
 // === Palette corrections ===
 
@@ -80,6 +77,7 @@ void images_palette_correction() {
 
 void set_backgrounds() {
     swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
+    dmaCopy(f_sub_backgroundTiles, BG_TILE_RAM_SUB(1), f_sub_backgroundTilesLen);
     swiCopy(f_sub_backgroundMap, BG_MAP_RAM_SUB(0), f_sub_backgroundMapLen / 2);
     swiCopy(i_sub_finishedBitmap, BG_BMP_RAM_SUB(3), i_sub_finishedBitmapLen / 2);
 }
@@ -114,15 +112,15 @@ void graphics_setup() {
     dmaFillHalfWords(0, BG_BMP_RAM(3), SCREEN_WIDTH * SCREEN_HEIGHT);
 
     // Copy palettes
-    dmaCopy(a_paletteBitmap, BG_PALETTE + 1, 128);
-    dmaCopy(g_sub_paletteBitmap, BG_PALETTE_SUB + 1, 128);
+    dmaCopy(a_paletteBitmap, BG_PALETTE + 1, 17 * 2);
+    dmaCopy(g_sub_paletteBitmap, BG_PALETTE_SUB + 1, 16 * 2);
 
-    // Copy tiles
-    dmaCopy(f_sub_backgroundTiles, BG_TILE_RAM_SUB(1), f_sub_backgroundTilesLen);
-
-    // Setup
+    // Setup & Show
     images_palette_correction();
     set_backgrounds();
+
+    // Sprites
+    sprites_setup();
 }
 
 // === Graphics Drawing ===
@@ -153,7 +151,7 @@ void clear_game_screen() {
     dmaFillHalfWords(0, BG_BMP_RAM(0), SCREEN_WIDTH * SCREEN_HEIGHT);
 }
 
-// === Intermediat Screens ===
+// === Intermediate Screens ===
 
 void show_game_over() {
     REG_DISPCNT_SUB |= DISPLAY_BG2_ACTIVE;
