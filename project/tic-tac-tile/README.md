@@ -26,9 +26,11 @@ It features 3 game modes:
 - [X] Graphics images finish
 - [X] Timer
 - [X] Game Over Sprite
+- [X] Improve project structure
 - [ ] Music
 - [ ] Polish code + add comments
 - [ ] Fully test game
+- [ ] Presentation
 - [ ] Write README
 - [ ] Wi-Fi
-- [ ] Presentation
+- [ ] Update presentation
