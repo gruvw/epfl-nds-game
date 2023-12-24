@@ -7,6 +7,7 @@
 
 #include "game.h"
 #include "setters.h"
+#include "audio.h"
 
 // === Inputs / Touch Areas ===
 
@@ -44,7 +45,7 @@ GameSpeed game_speed;
 void reset_game() {
     board = START_BOARD;
     selection_coords = MID_MID;
-    game_state = BEGIN;
+    next_game_state = BEGIN;
     active_side = STARTING_SIDE;
 
     set_timer_state(UNUSED);
@@ -69,15 +70,21 @@ void timer_fsm() {
 
     if (next_game_state == BEGIN) {
         reset_game();
+
         hide_game_over();
         hide_game_over_sprites();
         show_begin();
+
+        menu_audio();
     }
 
     if (next_game_state == RUNNING) {
         set_timer_state(STARTED);
+
         hide_begin();
         refresh_game_screen();
+
+        game_audio();
     }
 
     if (next_game_state == FINISHED) {
@@ -101,6 +108,8 @@ void timer_fsm() {
         } else {
             show_game_over_sprites(OTHER_SIDE(active_side), true);
         }
+
+        game_over_audio();
     }
 
     game_state = next_game_state;
@@ -137,6 +146,7 @@ void keys_handler() {
             selection_coords -= ROW_INCR;
         } else if (PRESSED_ONCE(KEY_A) && cell_at(board, selection_coords) == EMPTY) {
             board = placed_cell(board, active_side, selection_coords);
+            select_audio(false);
             if (game_mode == SINGLE_PLAYER && !is_finished(board)) {
                 board = bot_placed_cell(board);
             } else if (game_mode == TWO_PLAYER_LOCAL) {
@@ -168,16 +178,22 @@ void touch_handler() {
 
         if (SINGLE_PLAYER_TOUCHED(pos)) {
             set_game_mode(SINGLE_PLAYER);
+            select_audio(true);
         } else if (TWO_PLAYER_TOUCHED(pos)) {
             set_game_mode(TWO_PLAYER_LOCAL);
+            select_audio(true);
         } else if (TWO_PLAYER_WIFI_TOUCHED(pos)) {
             set_game_mode(TWO_PLAYER_WIFI);
+            select_audio(true);
         } else if (FAST_TOUCHED(pos)) {
             set_game_speed(FAST);
+            select_audio(true);
         } else if (MEDIUM_TOUCHED(pos)) {
             set_game_speed(MEDIUM);
+            select_audio(true);
         } else if (SLOW_TOUCHED(pos)) {
             set_game_speed(SLOW);
+            select_audio(true);
         }
     }
 }
@@ -185,7 +201,11 @@ void touch_handler() {
 // === Game ===
 
 void game_setup() {
+    graphics_setup();
+    audio_setup();
+
     // Golbals
+    game_state = FINISHED; // force first FSM transition
     reset_game();
 
     // Default game settings (not reset on game over)

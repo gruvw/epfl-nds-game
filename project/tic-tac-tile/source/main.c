@@ -15,7 +15,6 @@ int main(void) {
     // Coords a = above_empty(b, COORDS(1, 2));
     // printf("row %d, col %d", ROW(a), COL(a));
 
-    graphics_setup();
     game_setup();
 
     game_loop();
@@ -27,3 +26,4 @@ int main(void) {
 // ASK second NDS to test wifi
 // ASK wifi can lose packets ??
 // ASK sprites main sub
+// ASK speed up audio (mod) file

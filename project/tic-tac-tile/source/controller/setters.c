@@ -5,6 +5,9 @@
 
 #include "f-sub-background.h"
 
+// Contains a mix of graphics, timer, and controller / game logic
+// Game helper functions (contextual setters)
+
 // === Palette colors mapping ===
 
 #define SELECTED_COLOR RGB15(5, 0, 30)
@@ -15,8 +18,6 @@
 #define SPEED_TO_COLOR(speed) ((speed) == SLOW ? RGB15(7, 26, 14) : ((speed) == MEDIUM ? RGB15(28, 14, 5) : RGB15(21, 6, 6)))
 #define PROGRESS_COLOR(mode, speed) ((mode) == UNUSED ? RGB15(31, 31, 31) : SPEED_TO_COLOR(speed))
 #define PROGRESS_PALETTE 4
-
-// Contains a mix of graphics, timer, and controller / game logic
 
 // === Selection colors ===
 
@@ -44,7 +45,6 @@ void set_game_speed(GameSpeed new_speed) {
         TIMER_DATA(0) = TIMER_FREQ_64(25); // 40 ms per tile
         TIMER_CR(0) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
     }
-
 }
 
 // === Timer and progress ===
