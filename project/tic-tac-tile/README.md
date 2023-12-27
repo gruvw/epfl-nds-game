@@ -27,7 +27,7 @@ It features 3 game modes:
 - [X] Timer
 - [X] Game Over Sprite
 - [X] Improve project structure
-- [ ] Music
+- [X] Music
 - [ ] Polish code + add comments
 - [ ] Fully test game
 - [ ] Presentation
