@@ -4,8 +4,13 @@
 
 #include "board.h"
 
+// === Utility macros ===
+
 #define COL_MOD(c) ((c) < 0 ? (c) + SIDE : (c))
 #define B(coords) ((uint32_t) coords << 1U)
+#define PREFIX(board, coords) ((board) >> B(coords))
+
+// === Utility constants ===
 
 const Board START_BOARD = 0;
 const Board CELL_MASK = 0b11U;
@@ -40,18 +45,16 @@ const Cell WINS[] = {
     TOP_MID, ROW_INCR,
 };
 
-Board prefix(Board board, Coords coords) {
-    return board >> B(coords);
-}
+// === Board methods ===
 
 Board placed_cell(Board board, Cell cell, Coords coords) {
     Board suffix = board & ((1U << B(coords)) - 1);
-    Board placed = (prefix(board, coords) & ~CELL_MASK) | cell;
+    Board placed = (PREFIX(board, coords) & ~CELL_MASK) | cell;
     return (placed << B(coords)) | suffix;
 }
 
 Cell cell_at(Board board, Coords coords) {
-    return prefix(board, coords) & CELL_MASK;
+    return PREFIX(board, coords) & CELL_MASK;
 }
 
 bool is_full(Board board) {
@@ -105,11 +108,7 @@ bool three_same(Board board, Coords start, Coords direction) {
 Winner winner_of(Board board) {
     for (size_t i = 0; i < sizeof(WINS) / sizeof(*WINS); i += 2) {
         if (three_same(board, WINS[i], WINS[i + 1])) {
-            return (Winner) {
-                cell_at(board, WINS[i]),
-                WINS[i],
-                WINS[i + 1]
-            };
+            return (Winner) { cell_at(board, WINS[i]), WINS[i], WINS[i + 1] };
         }
     }
 

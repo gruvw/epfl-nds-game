@@ -4,17 +4,6 @@
 #include "view/graphics.h"
 
 int main(void) {
-    // consoleDemoInit();
-    // printf("\nTemplate nds\n");
-
-    // Board b = START_BOARD;
-    // b = placed_cell(b, CROSS, COORDS(0, 0));
-    // b = placed_cell(b, CROSS, COORDS(0, 1));
-    // b = placed_cell(b, CROSS, COORDS(0, 2));
-
-    // Coords a = above_empty(b, COORDS(1, 2));
-    // printf("row %d, col %d", ROW(a), COL(a));
-
     game_setup();
 
     game_loop();

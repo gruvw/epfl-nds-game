@@ -31,10 +31,10 @@ BotMove minimax(Board board, Cell side) {
 }
 
 Board bot_placed_cell(Board board) {
-    // Assumes that bot can play (game not yet finished)
+    // Assumes that bot can play, game not yet finished
 
     if (is_second_move(board)) {
-        Coords best_moves[] = {
+        Coords best_moves[] = {  // cannot be global const, not compile constant
             MID_MID, TOP_LEFT, MID_MID,
             TOP_LEFT, TOP_LEFT, TOP_RIGHT,
             MID_MID, TOP_MID, MID_MID,

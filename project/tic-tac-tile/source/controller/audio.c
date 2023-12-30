@@ -20,12 +20,12 @@ void audio_setup() {
     mmSetModuleVolume(190);
 }
 
-void menu_audio() {
+void menu_audio() {  // enable menu music
     mmStop();
     mmStart(MOD_MENU, MM_PLAY_LOOP);
 }
 
-void game_audio() {
+void game_audio() {  // enable game music
     mmStop();
     mmStart(MOD_GAME, MM_PLAY_LOOP);
 }

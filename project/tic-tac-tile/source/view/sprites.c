@@ -45,7 +45,7 @@ void sprites_setup() {
     VRAM_I_CR = VRAM_ENABLE | VRAM_I_SUB_SPRITE;
     oamInit(&oamSub, SpriteMapping_1D_32, false);
 
-    // Allocate sprites
+    // Allocate sprites, no need to free, as game loop is infinite
     cross_sprite = OAM_ALLOCATE;
     circle_sprite = OAM_ALLOCATE;
     timer_sprite = OAM_ALLOCATE;

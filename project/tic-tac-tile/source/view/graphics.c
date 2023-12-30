@@ -38,6 +38,7 @@ typedef struct {
 
 // === Utilities ===
 
+// Translate board coords to screen coords
 ScreenPosition position_from_coords(Coords coords) {
     return (ScreenPosition) {
         26 + 50 * ROW(coords),
@@ -47,11 +48,11 @@ ScreenPosition position_from_coords(Coords coords) {
 
 void set_bg_transform(size_t bg_nb) {
     bgTransform[bg_nb]->hdx = BIT(8);
-    bgTransform[bg_nb]->vdx = 0 * 256;
-    bgTransform[bg_nb]->hdy = 0 * 256;
+    bgTransform[bg_nb]->vdx = 0;
+    bgTransform[bg_nb]->hdy = 0;
     bgTransform[bg_nb]->vdy = BIT(8);
-    bgTransform[bg_nb]->dx = 0 * 256;
-    bgTransform[bg_nb]->dy = 0 * 256;
+    bgTransform[bg_nb]->dx = 0;
+    bgTransform[bg_nb]->dy = 0;
 }
 
 // === Images Palette Corrections ===
@@ -96,10 +97,10 @@ void graphics_setup() {
     VRAM_C_CR = VRAM_ENABLE | VRAM_C_SUB_BG;
     REG_DISPCNT_SUB = MODE_5_2D | DISPLAY_BG0_ACTIVE;
 
-    BGCTRL[2] = BgSize_B8_256x256 | BG_BMP_BASE(0); // used for X, O, select
-    BGCTRL[3] = BgSize_B8_256x256 | BG_BMP_BASE(3); // used for tic tac toe background, and begin menu
-    BGCTRL_SUB[0] = BG_32x32 | BG_COLOR_256 | BG_MAP_BASE(0) | BG_TILE_BASE(1); // used for BG settings menu
-    BGCTRL_SUB[2] = BgSize_B8_256x256 | BG_BMP_BASE(3); // used for Game Over
+    BGCTRL[2] = BgSize_B8_256x256 | BG_BMP_BASE(0);  // used for X, O, selected coords
+    BGCTRL[3] = BgSize_B8_256x256 | BG_BMP_BASE(3);  // used for tic-tac-toe background, and begin menu
+    BGCTRL_SUB[0] = BG_32x32 | BG_COLOR_256 | BG_MAP_BASE(0) | BG_TILE_BASE(1);  // used for settings menu
+    BGCTRL_SUB[2] = BgSize_B8_256x256 | BG_BMP_BASE(3);  // used for Game Over
 
     // Set up extended rotoscale affine matrix
     set_bg_transform(2);
@@ -127,16 +128,16 @@ void graphics_setup() {
 
 // === Graphics Drawing ===
 
-void overlay_sprite(const u16 * sprite, size_t row_pos, size_t col_pos, size_t side) {
+void overlay_img(const u16 * img, size_t row_pos, size_t col_pos, size_t side) {
     for (size_t row = 0; row < side; row++) {
         size_t pos = (row_pos + row) * SCREEN_WIDTH / 2 + col_pos / 2;
-        dmaCopy(sprite + row * side / 2, BG_BMP_RAM(0) + pos, side);
+        dmaCopy(img + row * side / 2, BG_BMP_RAM(0) + pos, side);
     }
 }
 
 void draw_select(Coords coords) {
     ScreenPosition pos = position_from_coords(coords);
-    overlay_sprite((void*) e_selectBitmap, pos.row - 4, pos.col - 4, 48);
+    overlay_img((void*) e_selectBitmap, pos.row - 4, pos.col - 4, 48);
 }
 
 void draw_board(Board board) {
@@ -144,7 +145,7 @@ void draw_board(Board board) {
         if (cell_at(board, c) != EMPTY) {
             const void * side = cell_at(board, c) == CROSS ? c_crossBitmap : d_circleBitmap;
             ScreenPosition pos = position_from_coords(c);
-            overlay_sprite(side, pos.row, pos.col, 40);
+            overlay_img(side, pos.row, pos.col, 40);
         }
     }
 }
