@@ -79,9 +79,9 @@ void images_palette_correction() {
 // === Backgrounds ===
 
 void set_backgrounds() {
-    swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
+    dmaCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen);
     dmaCopy(f_sub_backgroundTiles, BG_TILE_RAM_SUB(1), f_sub_backgroundTilesLen);
-    swiCopy(f_sub_backgroundMap, BG_MAP_RAM_SUB(0), f_sub_backgroundMapLen / 2);
+    dmaCopy(f_sub_backgroundMap, BG_MAP_RAM_SUB(0), f_sub_backgroundMapLen);
     swiCopy(i_sub_finishedBitmap, BG_BMP_RAM_SUB(3), i_sub_finishedBitmapLen / 2);
 }
 
@@ -115,8 +115,8 @@ void graphics_setup() {
     dmaFillHalfWords(0, BG_BMP_RAM(3), SCREEN_WIDTH * SCREEN_HEIGHT);
 
     // Copy palettes
-    dmaCopy(a_paletteBitmap, BG_PALETTE + 1, 17 * 2);
-    dmaCopy(g_sub_paletteBitmap, BG_PALETTE_SUB + 1, 16 * 2);
+    swiCopy(a_paletteBitmap, BG_PALETTE + 1, 17);
+    swiCopy(g_sub_paletteBitmap, BG_PALETTE_SUB + 1, 16);
 
     // Setup & Show
     images_palette_correction();
@@ -167,9 +167,9 @@ void hide_game_over() {
 }
 
 void show_begin() {
-    swiCopy(h_beginBitmap, BG_BMP_RAM(3), h_beginBitmapLen / 2);
+    dmaCopy(h_beginBitmap, BG_BMP_RAM(3), h_beginBitmapLen);
 }
 
 void hide_begin() {
-    swiCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen / 2);
+    dmaCopy(b_backgroundBitmap, BG_BMP_RAM(3), b_backgroundBitmapLen);
 }
