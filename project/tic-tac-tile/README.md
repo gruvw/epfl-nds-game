@@ -1,6 +1,7 @@
 # Tic-Tac-Tile NDS Game Project
 
-EPFL BA5 EE-310 NDS project
+EPFL BA5 EE-310 NDS project  
+Lucas Jung (324724)
 
 This game is a [Tic-Tac-Toe](https://en.wikipedia.org/wiki/Tic-tac-toe) clone on the [NDS](https://en.wikipedia.org/wiki/Nintendo_DS).
 
@@ -65,7 +66,7 @@ Select among the 3 **speeds**:
     * In single player mode, the bot will play instantly after your turn.
     * In (local) two player, mode you need to pass the Nintendo DS to the other player so they can play.
     * In Wi-Fi two player mode, simply wait for your opponent to play on their Nintendo DS.
-6. Carry on till you reach the Game Over screen.
+6. Carry on till you reach the Game Over screen. Alternatively you can also press `start` at any moment to put an end to the current game and go directly to the Game Over screen.
     * If one of the side won, their 3 winning pieces will be highlighted on the board.
       Their piece will be crowned on the bottom screen.
     * A clock will be displayed on the bottom screen in case they won because the other side ran out of time.
@@ -84,6 +85,7 @@ Have fun !
 - [X] Sub background settings graphics
 - [X] Settings selection touch
 - [X] Begin and game over screens
+- [X] Custom palettes generation
 - [X] AI (minimax)
 - [X] Timer + progress bar
 - [X] Game Over sprites
@@ -91,7 +93,7 @@ Have fun !
 - [X] Music + sound effects
 - [X] Polish code + add comments
 - [ ] Fully test game
-- [ ] Presentation
+- [X] Presentation
 - [X] Write README
 - [ ] Wi-Fi two player mode
 - [ ] Update presentation
