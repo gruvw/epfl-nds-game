@@ -223,7 +223,7 @@ void game_setup() {
     set_game_speed(SLOW);
 
     // Timer Interrupts
-    TIMER_DATA(1) = TIMER_FREQ_64(50);  // timer FSM (update game 50 times per seconds)
+    TIMER_DATA(1) = TIMER_FREQ_64(60);  // timer FSM (update game 60 times per seconds)
     TIMER_CR(1) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
     irqSet(IRQ_TIMER(1), &timer_fsm);
     irqEnable(IRQ_TIMER(1));
