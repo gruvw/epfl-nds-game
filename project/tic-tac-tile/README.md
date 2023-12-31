@@ -1,18 +1,25 @@
-# NDS Tic-Tac-Tile Game
+# Tic-Tac-Tile NDS Game Project
 
 EPFL BA5 EE-310 NDS project
 
 This game is a [Tic-Tac-Toe](https://en.wikipedia.org/wiki/Tic-tac-toe) clone on the [NDS](https://en.wikipedia.org/wiki/Nintendo_DS).
 
+**Name**: the name Tic-Tac-Tile is a modification of the original Tic-Tac-Toe game name.
+It is a reference to the word "TacTile", denoting the bottom tactile screen of the NDS.
+Additionally, the last word "Tile" is a reference to the tile mode of the graphical engines of the NDS.
+The last layer of meaning behind the name is the sound of a clock "tic tac" as there is some kind of a time pressure aspect to the game.
+
 ## Showcase
 
-Here are a few pictures of the game:
+Here are a few pictures of the Tic-Tac-Tile game:
 
-![NDS]()
-
-![Game Menu]()
-![Game Play]()
-![Game Over]()
+<div>
+  <img src="https://github.com/gruvw/epfl-nds-game/blob/main/project/tic-tac-tile/docs/nds.jpg" alt="NDS" width="600px">
+  <br>
+  <img src="https://github.com/gruvw/epfl-nds-game/blob/main/project/tic-tac-tile/docs/menu.png" alt="Game Menu" width="197px"> 
+  <img src="https://github.com/gruvw/epfl-nds-game/blob/main/project/tic-tac-tile/docs/game.png" alt="Game Play" width="197px"> 
+  <img src="https://github.com/gruvw/epfl-nds-game/blob/main/project/tic-tac-tile/docs/over.png" alt="Game Over" width="197px"> 
+</div>
 
 ## Instructions
 
@@ -50,20 +57,20 @@ Select among the 3 **speeds**:
 
 1. Select the settings that you want by using the bottom touch screen.
 2. Press on the `start` button to launch a game.
-  * In Wi-Fi two player mode, both players need to press the `start` button to connect the two Nintendos.
+    * In Wi-Fi two player mode, both players need to press the `start` button to connect the two Nintendos.
 3. Select the square where you want to place your piece using the `Left`, `Right`, `Up`, `Down` arrow buttons.
 4. Press on `A` to confirm your choice.
    Be carefull about the progress bar, you need to play before you run out of time to win!
 5. Wait for the other side to play.
-  * In single player mode, the bot will play instantly after your turn.
-  * In (local) two player, mode you need to pass the Nintendo DS to the other player so they can play.
-  * In Wi-Fi two player mode, simply wait for your opponent to play on their Nintendo DS.
+    * In single player mode, the bot will play instantly after your turn.
+    * In (local) two player, mode you need to pass the Nintendo DS to the other player so they can play.
+    * In Wi-Fi two player mode, simply wait for your opponent to play on their Nintendo DS.
 6. Carry on till you reach the Game Over screen.
-  * If one of the side won, their 3 winning pieces will be highlighted on the board.
-    Their piece will be crowned on the bottom screen.
-  * A clock will be displayed on the bottom screen in case they won because the other side ran out of time.
-  * No additional information will be displayed if the game resulted in a draw.
-    You will simply see the Game Over screen and the final state of the board.
+    * If one of the side won, their 3 winning pieces will be highlighted on the board.
+      Their piece will be crowned on the bottom screen.
+    * A clock will be displayed on the bottom screen in case they won because the other side ran out of time.
+    * No additional information will be displayed if the game resulted in a draw.
+      You will simply see the Game Over screen and the final state of the board.
 7. You can start a new game by pressing the `start` button to go back to the settings selection menu.
 
 Have fun !
@@ -85,6 +92,7 @@ Have fun !
 - [X] Polish code + add comments
 - [ ] Fully test game
 - [ ] Presentation
-- [ ] Write README
+- [X] Write README
 - [ ] Wi-Fi two player mode
 - [ ] Update presentation
+- [ ] GitHub release (add to README)
