@@ -92,7 +92,7 @@ Have fun !
 - [X] Improve project structure
 - [X] Music + sound effects
 - [X] Polish code + add comments
-- [ ] Fully test game
+- [X] Fully test game
 - [X] Presentation
 - [X] Write README
 - [ ] Wi-Fi two player mode
