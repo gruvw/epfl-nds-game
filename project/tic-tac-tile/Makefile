@@ -14,7 +14,7 @@ include $(DEVKITARM)/ds_rules
 #---------------------------------------------------------------------------------
 TARGET		:= $(shell basename $(CURDIR))
 BUILD		:= build
-SOURCES		:= source source/controller source/view source/model
+SOURCES		:= source source/controller source/view source/model source/controller/wifi
 DATA		:=
 INCLUDES	:= include
 GRAPHICS	:= data
@@ -40,7 +40,7 @@ LDFLAGS	=	-specs=ds_arm9.specs -g $(ARCH) -Wl,-Map,$(notdir $*.map)
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:= -lnds9 -lmm9 -lm
+LIBS	:= -ldswifi9 -lnds9 -lmm9 -lm
 
 
 #---------------------------------------------------------------------------------
