@@ -6,6 +6,7 @@
 #include "../view/graphics.h"
 
 #include "game.h"
+#include "wifi/wifi.h"
 #include "setters.h"
 #include "audio.h"
 
@@ -33,6 +34,7 @@ TimerState timer_state;
 
 Board board;
 Coords selection_coords;
+Cell local_side;
 Cell active_side;
 
 u8 time_left;  // in progress bar tiles (from 0 to STARTING_TIME)
@@ -46,10 +48,11 @@ GameSpeed game_speed;
 void reset_game() {
     board = START_BOARD;
     selection_coords = MID_MID;
-    next_game_state = BEGIN;
-    active_side = STARTING_SIDE;
+    local_side = active_side = STARTING_SIDE;  // `local_side` overwritten by Wi-Fi
 
-    set_timer_state(UNUSED);
+    wifi_reset();
+
+    set_timer_state(T_UNUSED);
     set_time_left(STARTING_TIME);
 
     clear_game_screen();
@@ -64,12 +67,17 @@ void refresh_game_screen() {
 
 // === Interrupt handlers ===
 
-void timer_fsm() {  // FSM state transitions manager
+// FSM state transitions manager
+void game_fsm() {
+    if (game_mode == TWO_PLAYER_WIFI && game_state != G_FINISHED) {
+        wifi_fsm();
+    }
+
     if (game_state == next_game_state) {
         return;
     }
 
-    if (next_game_state == BEGIN) {  // settings selection
+    if (next_game_state == G_BEGIN) {  // settings selection
         reset_game();
 
         hide_game_over();
@@ -79,8 +87,10 @@ void timer_fsm() {  // FSM state transitions manager
         menu_audio();
     }
 
-    if (next_game_state == RUNNING) {  // start the game
-        set_timer_state(STARTED);
+    if (next_game_state == G_RUNNING) {  // start the game
+        if (local_side == active_side) {
+            set_timer_state(T_STARTED);
+        }
 
         hide_begin();
         refresh_game_screen();
@@ -88,8 +98,8 @@ void timer_fsm() {  // FSM state transitions manager
         game_audio();
     }
 
-    if (next_game_state == FINISHED) {  // game over
-        set_timer_state(OVER);
+    if (next_game_state == G_FINISHED) {  // game over
+        set_timer_state(T_OVER);
         show_game_over();
 
         Winner a = winner_of(board);
@@ -118,26 +128,31 @@ void timer_fsm() {  // FSM state transitions manager
 }
 
 void timer_handler() {  // handles game's progress bar
-    if (game_state == RUNNING && timer_state == STARTED) {
+    if (game_state == G_RUNNING && timer_state == T_STARTED) {
         if (time_left > 0) {
             set_time_left(time_left - 1);  // updates time_left
         }
         if (time_left <= 0) {
-            next_game_state = FINISHED;
+            next_game_state = G_FINISHED;
         }
     }
 }
 
-void keys_handler() {  // key presses manager
+// Key presses manager
+void keys_handler() {
     u16 pressed_keys = 0;  // reset register used for PRESSED_ONCE
 
-    if (game_state == BEGIN) {
+    if (game_state == G_BEGIN) {
         if (PRESSED_ONCE(KEY_START)) {  // start game
-            next_game_state = RUNNING;
+            next_game_state = G_RUNNING;
+
+            if (wifi_state == W_CONNECTED) {
+                next_wifi_state = W_PLAY;
+            }
         }
     }
 
-    if (game_state == RUNNING) {
+    if (game_state == G_RUNNING) {
         // Direction selected control
         if (PRESSED_ONCE(KEY_RIGHT) && selection_coords < BOTTOM_RIGHT) {
             selection_coords += COL_INCR;
@@ -150,42 +165,52 @@ void keys_handler() {  // key presses manager
         }
 
         // Place cell on selection
-        if (PRESSED_ONCE(KEY_A) && cell_at(board, selection_coords) == EMPTY) {
+        if (PRESSED_ONCE(KEY_A) && cell_at(board, selection_coords) == EMPTY && local_side == active_side) {
             board = placed_cell(board, active_side, selection_coords);
             select_audio(false);
 
             // Next state to do
             if (game_mode == SINGLE_PLAYER && !is_finished(board)) {
                 board = bot_placed_cell(board);  // bot plays
-            } else if (game_mode == TWO_PLAYER_LOCAL) {
+            }
+            if (game_mode == TWO_PLAYER_LOCAL) {
+                local_side = active_side = OTHER_SIDE(active_side);
+            }
+            if (game_mode == TWO_PLAYER_WIFI) {
+                send_move(selection_coords);
                 active_side = OTHER_SIDE(active_side);
+                set_timer_state(T_UNUSED);
             }
 
             set_time_left(STARTING_TIME);
         }
 
         if (is_finished(board) || PRESSED_ONCE(KEY_START)) {
-            next_game_state = FINISHED;
+            next_game_state = G_FINISHED;
+            next_wifi_state = W_TERMINATED;
+            send_stop();
+
         }
 
         refresh_game_screen();
     }
 
-    if (game_state == FINISHED) {
+    if (game_state == G_FINISHED) {
         if (PRESSED_ONCE(KEY_START)) {  // restart game
-            next_game_state = BEGIN;
+            next_game_state = G_BEGIN;
         }
     }
 }
 
-void touch_handler() {  // touch screen handler
-    if (game_state == BEGIN) {
+// Touch screen handler
+void touch_handler() {
+    if (game_state == G_BEGIN) {
         scanKeys();
 
         touchPosition pos;
         touchRead(&pos);
 
-        // settings menu
+        // Settings menu
         if (SINGLE_PLAYER_TOUCHED(pos)) {
             set_game_mode(SINGLE_PLAYER);
             select_audio(true);
@@ -193,8 +218,10 @@ void touch_handler() {  // touch screen handler
             set_game_mode(TWO_PLAYER_LOCAL);
             select_audio(true);
         } else if (TWO_PLAYER_WIFI_TOUCHED(pos)) {
-            set_game_mode(TWO_PLAYER_WIFI);
             select_audio(true);
+            if (wifi_setup()) {
+                set_game_mode(TWO_PLAYER_WIFI);
+            }
         } else if (FAST_TOUCHED(pos)) {
             set_game_speed(FAST);
             select_audio(true);
@@ -215,8 +242,8 @@ void game_setup() {
     audio_setup();
 
     // Golbals
-    game_state = FINISHED; // force first FSM transition
-    reset_game();
+    game_state = G_FINISHED;
+    next_game_state = G_BEGIN;  // force first FSM transition
 
     // Default game settings, not reset on game over
     set_game_mode(SINGLE_PLAYER);
@@ -225,7 +252,7 @@ void game_setup() {
     // Timer Interrupts
     TIMER_DATA(1) = TIMER_FREQ_64(60);  // timer FSM (update game 60 times per seconds)
     TIMER_CR(1) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
-    irqSet(IRQ_TIMER(1), &timer_fsm);
+    irqSet(IRQ_TIMER(1), &game_fsm);
     irqEnable(IRQ_TIMER(1));
 
     // Registers are set in `set_game_speed`

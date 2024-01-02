@@ -96,5 +96,7 @@ Have fun !
 - [X] Presentation
 - [X] Write README
 - [ ] Wi-Fi two player mode
+- [ ] Clean and polish code
 - [ ] Update presentation
+- [ ] Fully test game
 - [ ] GitHub release (add to README)

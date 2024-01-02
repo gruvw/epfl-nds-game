@@ -15,7 +15,7 @@
 #define SELECTED_COLOR RGB15(5, 0, 30)
 
 #define SPEED_TO_COLOR(speed) ((speed) == SLOW ? RGB15(7, 26, 14) : ((speed) == MEDIUM ? RGB15(28, 14, 5) : RGB15(21, 6, 6)))
-#define PROGRESS_COLOR(mode, speed) ((mode) == UNUSED ? RGB15(31, 31, 31) : SPEED_TO_COLOR(speed))
+#define PROGRESS_COLOR(mode, speed) ((mode) == T_UNUSED ? RGB15(31, 31, 31) : SPEED_TO_COLOR(speed))
 #define PROGRESS_PALETTE 4
 
 // === Selection colors ===
