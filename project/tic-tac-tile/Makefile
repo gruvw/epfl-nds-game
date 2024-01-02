@@ -119,8 +119,8 @@ gitlab:
 
 upload:
 	make build
-	[ -e "/media/gruvw/0403-0201/NDS/" ] || udisksctl mount -b /dev/sda1
-	cp ./tic-tac-tile.nds /media/gruvw/0403-0201/NDS/
+	[ -e "/media/gruvw/NDS/NDS/" ] || udisksctl mount -b /dev/sda1
+	cp ./tic-tac-tile.nds /media/gruvw/NDS/NDS/
 
 else
 

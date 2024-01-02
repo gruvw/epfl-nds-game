@@ -3,25 +3,28 @@
 
 #include <nds.h>
 #include <dswifi9.h>
-#include <sys/types.h>
 #include <netinet/in.h>
 #include <sys/socket.h>
+#include <sys/types.h>
 
-#define SSID "MES-NDS"
+#define SSID "SEM-NDS"
 
-
-//WiFi initialization
+// WiFi initialization
 int initWiFi();
-//Socket initialization
+
+// Socket initialization
 int openSocket();
-//Receive data trough the socket
-int receiveData(char* data_buff, int bytes);
-//Send data through the socket
-int sendData(char* data_buff, int bytes);
-//Close the Socket
+
+// Receive data trough the socket
+int receiveData(char * data_buff, int bytes);
+
+// Send data through the socket
+int sendData(char * data_buff, int bytes);
+
+// Close the Socket
 void closeSocket();
-//Disconnect the WiFi
+
+// Disconnect the WiFi
 void disconnectFromWiFi();
 
-
-#endif // WIFI_MINILIB_H
+#endif

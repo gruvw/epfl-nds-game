@@ -1,7 +1,6 @@
 #include <nds.h>
 
 #include "controller/game.h"
-#include "view/graphics.h"
 
 int main(void) {
     game_setup();
