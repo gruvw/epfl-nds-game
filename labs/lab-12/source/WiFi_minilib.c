@@ -1,4 +1,5 @@
 #include "WiFi_minilib.h"
+#include <stdio.h>
 
 // Socket port
 #define LOCAL_PORT 8888
@@ -157,6 +158,7 @@ int receiveData(char * data_buff, int bytes) {
 
     // If no socket is opened, return (error)
     if (socket_opened == false) {
+        printf("no socket\n");
         return -1;
     }
 
@@ -173,6 +175,10 @@ int receiveData(char * data_buff, int bytes) {
     // Discard data sent by ourselves
     if (sa_in.sin_addr.s_addr == Wifi_GetIP()) {
         return 0;
+    }
+
+    if (received_bytes > 0) {
+        printf("recieved a total of %d bytes\n", received_bytes);
     }
 
     // Return the amount of received bytes

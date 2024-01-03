@@ -7,6 +7,3 @@ int main(void) {
 
     game_loop();
 }
-
-// ASK second NDS to test wifi
-// ASK speed up audio (mod) file

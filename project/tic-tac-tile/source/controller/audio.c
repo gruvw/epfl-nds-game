@@ -20,14 +20,16 @@ void audio_setup() {
     mmSetModuleVolume(190);
 }
 
+// TODO enable music
+
 void menu_audio() {  // enable menu music
     mmStop();
-    mmStart(MOD_MENU, MM_PLAY_LOOP);
+    // mmStart(MOD_MENU, MM_PLAY_LOOP);
 }
 
 void game_audio() {  // enable game music
     mmStop();
-    mmStart(MOD_GAME, MM_PLAY_LOOP);
+    // mmStart(MOD_GAME, MM_PLAY_LOOP);
 }
 
 void select_audio(bool touch) {

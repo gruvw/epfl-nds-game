@@ -1,4 +1,4 @@
-.PHONY: build clean run gitlab upload
+.PHONY: build clean run gitlab upload upload2
 
 ifeq ($(strip $(DEVKITARM)),)
 $(error "Please set DEVKITARM in your environment. export DEVKITARM=<path to>devkitARM")
@@ -121,6 +121,11 @@ upload:
 	make build
 	[ -e "/media/gruvw/NDS/NDS/" ] || udisksctl mount -b /dev/sda1
 	cp ./tic-tac-tile.nds /media/gruvw/NDS/NDS/
+
+upload2:
+	make build
+	[ -e "/media/gruvw/0403-0201/NDS/" ] || udisksctl mount -b /dev/sda1
+	cp ./tic-tac-tile.nds /media/gruvw/0403-0201/NDS/
 
 else
 

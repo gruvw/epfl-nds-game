@@ -2,6 +2,9 @@
 #include <stdio.h>
 #include "WiFi_minilib.h"
 
+#define MSG 4
+#define GAME_ID ((char) 0b1110110)
+
 typedef enum Messages_e {
 	A,	//0x00
 	B,	//0x01
@@ -11,7 +14,7 @@ typedef enum Messages_e {
 
 void sendMessage()
 {
-	char msg[1];
+	char msg[MSG] = { GAME_ID };
 
 	//Poll the keypad
 	scanKeys();
@@ -22,36 +25,40 @@ void sendMessage()
 	{
 	case KEY_A:
 		printf("You pressed A\n");
-		msg[0] = (char)A;
-		sendData(msg, 1);
+		msg[MSG - 1] = (char)A;
+		sendData(msg, MSG);
 		break;
 	case KEY_B:
 		printf("You pressed B\n");
-		msg[0] = (char)B;
-		sendData(msg, 1);
+		msg[MSG - 1] = (char)B;
+		sendData(msg, MSG);
 		break;
 	case KEY_X:
 		printf("You pressed X\n");
-		msg[0] = (char)X;
-		sendData(msg, 1);
+		msg[MSG - 1] = (char)X;
+		sendData(msg, MSG);
 		break;
 	case KEY_Y:
 		printf("You pressed Y\n");
-		msg[0] = (char)Y;
-		sendData(msg, 1);
+		msg[MSG - 1] = (char)Y;
+		sendData(msg, MSG);
 		break;
 	}
 }
 
 void receiveMessage()
 {
-	char msg[1];
+	char msg[MSG];
 
 	//Listen for messages from others
-	if(receiveData(msg,1)>0	)
+	if(receiveData(msg, MSG) == MSG)
 	{
+        if (msg[0] != GAME_ID) {
+            printf("WRONG GAME_ID\n");
+        }
+
 		//If received, decode the key and print
-		switch(msg[0])
+		switch(msg[MSG - 1])
 		{
 		case A:
 			printf("Other pressed A\n");
