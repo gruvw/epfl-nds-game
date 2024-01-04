@@ -15,11 +15,11 @@ The last layer of meaning behind the name is the sound of a clock "tic tac" as t
 Here are a few pictures of the Tic-Tac-Tile game:
 
 <div>
-  <img src="project/tic-tac-tile/docs/nds.jpg" alt="NDS" width="600px">
+  <img src="docs/nds.jpg" alt="NDS" width="600px">
   <br>
-  <img src="project/tic-tac-tile/docs/menu.png" alt="Game Menu" width="197px"> 
-  <img src="project/tic-tac-tile/docs/game.png" alt="Game Play" width="197px"> 
-  <img src="project/tic-tac-tile/docs/over.png" alt="Game Over" width="197px"> 
+  <img src="docs/menu.png" alt="Game Menu" width="197px"> 
+  <img src="docs/game.png" alt="Game Play" width="197px"> 
+  <img src="docs/over.png" alt="Game Over" width="197px"> 
 </div>
 
 ## Instructions
