@@ -12,10 +12,9 @@ typedef enum {
 } BOPState;
 
 typedef u16 DeviceID;
-#define MAX_ID 0xFE
+#define MAX_ID 0xFD  // non-inclusive
 
 typedef struct {
-    // char game_id;
     PacketType packet_type;
     PacketID packet_id;
     DeviceID sender_id;
@@ -27,7 +26,7 @@ typedef struct {
 #define NULL_PACKET (Packet) { P_NONE }
 #define NULL_MESSAGE (Message) { M_NONE }
 
-#define COUNTER_MAX 5 // number of 100ms delays before Wi-Fi packet resent (could implement linear/exponential backoff)
+#define COUNTER_MAX 6 // number of 100ms delays before Wi-Fi packet resent (could implement linear/exponential backoff)
 #define COUNTER_DONE (timer_counter >= COUNTER_MAX)
 
 // === Globals ===
@@ -71,12 +70,14 @@ bool valid_packet_data(PacketData pd) {
 // === Packet exchange functions ===
 
 void send_packet(Packet packet) {
+    timer_counter = 0;
+
     char data[PACKET_SIZE] = {
         GAME_ID,
         packet.type,
         (char) packet.id,
-        (char) local_id,
-        (char) paired_id,
+        (char) local_id,  // sender
+        (char) paired_id,  // receiver
         packet.content.type,
         (char) packet.content.arg,
     };
@@ -89,10 +90,12 @@ PacketData receive_packet_data() {
     // Check for correct game and size
     if (receiveData(data, PACKET_SIZE) == PACKET_SIZE && data[0] == GAME_ID) {
         return (PacketData) {
-            data[1], data[2],
+            data[1],  // packet type
+            data[2],  // packet id
             data[3],  // sender
             data[4],  // receiver
-            data[5], data[6],
+            data[5],  // content type
+            data[6],  // content arg
         };
     }
 
