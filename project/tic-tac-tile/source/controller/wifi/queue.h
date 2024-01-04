@@ -6,15 +6,15 @@
 
 // === Queue Settings ===
 
-#define MAX_QUEUE_SIZE 10
+#define QUEUE_SIZE 10
 
-typedef Packet Type;  // must be a typedef struct
+typedef Packet Type;  // queue elements
 
 // === Queue Definition ===
 
 // Circular Queue structure
 typedef struct {
-    Type data[MAX_QUEUE_SIZE];
+    Type data[QUEUE_SIZE];
     size_t front, rear;
 } Queue;
 
@@ -22,8 +22,8 @@ typedef struct {
 
 // === Queue Interface ===
 
-bool is_empty(Queue * queue);
-bool is_full(Queue * queue);
+bool is_queue_empty(Queue * queue);
+bool is_queue_full(Queue * queue);
 void enqueue(Queue * queue, Type item);
 Type peek(Queue * queue);
 Type dequeue(Queue * queue);

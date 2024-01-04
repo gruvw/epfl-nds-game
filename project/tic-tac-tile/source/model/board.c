@@ -57,7 +57,7 @@ Cell cell_at(Board board, Coords coords) {
     return PREFIX(board, coords) & CELL_MASK;
 }
 
-bool is_full(Board board) {
+bool is_board_full(Board board) {
     for (Coords c = TOP_LEFT; c <= BOTTOM_RIGHT; c++) {
         if (cell_at(board, c) == EMPTY) {
             return false;
@@ -94,8 +94,8 @@ Coords first_move_coords(Board board) {
     return NONE;
 }
 
-bool is_finished(Board board) {
-    return winner_of(board).side != EMPTY || is_full(board);
+bool is_board_finished(Board board) {
+    return winner_of(board).side != EMPTY || is_board_full(board);
 }
 
 bool three_same(Board board, Coords start, Coords direction) {

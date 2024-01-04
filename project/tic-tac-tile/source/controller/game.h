@@ -10,7 +10,7 @@
 typedef enum {
     SINGLE_PLAYER,
     TWO_PLAYER_LOCAL,
-    TWO_PLAYER_WIFI, // TODO
+    TWO_PLAYER_WIFI,
 } GameMode;
 
 typedef enum {
@@ -37,6 +37,9 @@ extern GameMode game_mode;
 extern GameSpeed game_speed;
 
 extern Board board;
+extern Coords selection_coords;
+
+extern GameState game_state;
 extern GameState next_game_state;
 
 extern TimerState timer_state;
@@ -46,6 +49,8 @@ extern Cell local_side;
 extern Cell active_side;
 
 void refresh_game_screen();
+
+void reset_game();
 
 void game_setup();
 void game_loop();

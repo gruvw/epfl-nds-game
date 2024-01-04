@@ -4,6 +4,8 @@
 #include "packet.h"
 #include "queue.h"
 
+#include "../audio.h" // testing
+
 // === Macros / Types ===
 
 typedef enum {
@@ -28,7 +30,7 @@ typedef struct {
 #define NULL_PACKET (Packet) { P_NONE }
 #define NULL_MESSAGE (Message) { M_NONE }
 
-#define COUNTER_MAX 5 // number of 100ms delays before Wi-Fi packet resent (could implement linear/exponential backoff)
+#define COUNTER_MAX 10 // number of 100ms delays before Wi-Fi packet resent (could implement linear/exponential backoff)
 #define COUNTER_DONE (timer_counter >= COUNTER_MAX)
 
 // === Globals ===
@@ -52,7 +54,7 @@ u8 last_acked_packet_id;  // for received packets
 void local_packet_reset() {
     bop_state = BOP_NOT_PAIRED;  // reset P2P-BOP
 
-    // Generate random ID between [1, MAX_ID]
+    // Generate random ID between [1, MAX_ID], must already be seeded!
     local_id = (DeviceID) ((rand() % MAX_ID) + 1);
     paired_id = 0;  // opponent not yet connected
 
@@ -82,8 +84,6 @@ void send_packet(Packet packet) {
         (char) packet.content.arg,
     };
     sendData(data, PACKET_SIZE);
-
-    timer_counter = 0;
 }
 
 PacketData receive_packet_data() {
@@ -101,7 +101,6 @@ PacketData receive_packet_data() {
 // Returns `true` if the packet_data can be used after call, `false` otherwise (packet consumed, or if not paired)
 bool p2p_bop(PacketData packet_data) {
     if (bop_state == BOP_NOT_PAIRED) {
-
         // Look for a discovering BOP agent, order requests to avoid simultaneous mutual connection
         if (packet_data.packet_type == P_DISCOVERY && packet_data.sender_id < local_id) {
             // Local device is BOP leader, the one responsible for connection establishment
@@ -130,6 +129,10 @@ bool p2p_bop(PacketData packet_data) {
     }
 
     if (bop_state == BOP_LEADER_PAIRED) {
+        // Note: protocol can be stuck (in unconnected state) here if locally paired BOP agent
+        // never sends additional packets (e.g.: because reset), or packets never reach local device.
+        // Use timeout or application reset (call `local_packet_reset`).
+
         if (packet_data.sender_id != paired_id) {
             // Ignore packets sent by peers other than BOP agent
         } else if (packet_data.packet_type == P_DISCOVERY) {  // NOLINT(bugprone-branch-clone)
@@ -182,7 +185,7 @@ Packet decode_packet_data(PacketData packet_data) {
     if (packet.type == P_ACK) {
         // Check if received packet is an ACK for our pending packet
         if (packet.id == peek(&packet_queue).id) {
-            // Wait to recieve ACK for pending packet before sending the next one
+            // Wait to receive ACK for pending packet before sending the next one
             dequeue(&packet_queue);  // pending packet has been ACKed
         }
         return NULL_PACKET;  // do not ACK or process ACKs
@@ -202,9 +205,13 @@ Packet decode_packet_data(PacketData packet_data) {
 }
 
 void send_first_pending_packet() {
-    if (is_empty(&packet_queue)) {
+    timer_counter = 0;
+
+    if (is_queue_empty(&packet_queue)) {
         return;  // no pending packet to send
     }
+
+    select_audio(true);
 
     // Only send one packet at a time, continuously send pending packet till ACKed
     send_packet(peek(&packet_queue));
@@ -212,7 +219,7 @@ void send_first_pending_packet() {
 
 // === Wi-Fi packet interface ===
 
-bool is_paired() {
+bool is_connected() {
     return bop_state == BOP_BIDIRECTIONALLY_PAIRED;
 }
 
@@ -246,55 +253,3 @@ Message receive_message() {
 
     return packet.content;
 }
-
-//     if (wifi_state == W_WAIT) {
-//         if (m.type == M_HELLO) {  // local was first online
-//             local_side = STARTING_SIDE;
-//             send_message((Message) { M_CONNECT, local_id });  // inform opponent
-//         } else if (m.type == M_CONNECT) { // opponent was first online
-//             local_side = OTHER_SIDE(STARTING_SIDE);
-//         }
-//     }
-
-//     if (wifi_state == W_CONNECTED && m.type == M_START) {  // oponent started the game
-//         wifi_state = next_wifi_state = W_PLAY;
-//         next_game_state = G_RUNNING;
-//     }
-
-//     if (next_wifi_state == W_WAIT) { // started wifi game
-//         send_message((Message) { M_HELLO, local_id });
-//     }
-
-//     char msg[MSG_SIZE];
-
-//     // Process if Wi-Fi message was sent to us (same game, correct recipient)
-//     if (receiveData(msg, MSG_SIZE) == MSG_SIZE && msg[0] == GAME_ID) {
-
-//         if (msg[])
-
-//         Message m = { msg[2], msg[3] };
-
-//         if (!opponent_id && (m.type == M_HELLO || m.type == M_CONNECT)) {  // unregistered communication
-//             opponent_id = m.arg;
-//             next_wifi_state = W_CONNECTED;
-//             process_message(m);
-//         } else if ((DeviceID) msg[1] != local_id) {  // check destination ID, registered communication
-//             process_message(m);
-//         }
-//     }
-
-// void send_message(Message m) {
-
-//     char msg[MSG_SIZE] = { GAME_ID, current_send_message, (char) opponent_id, m.type, (char) m.arg };
-//     sendData(msg, MSG_SIZE);
-//     do {
-
-//         for (size_t i = 0; i < 60; i++) {
-//             swiWaitForVBlank();
-//         }
-
-//         char ack[MSG_SIZE];
-//         int received = receiveData(ack, MSG_SIZE);
-//         acked = received == MSG_SIZE && msg[0] == GAME_ID && msg[1] == current_send_message && msg[3] == M_ACK;
-//     } while (!acked);
-// }

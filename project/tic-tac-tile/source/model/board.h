@@ -41,9 +41,9 @@ extern const Coords
 Board placed_cell(Board board, Cell cell, Coords coords);
 
 Cell cell_at(Board board, Coords coords);
-bool is_full(Board board);
+bool is_board_full(Board board);
 bool is_second_move(Board board);
 Coords first_move_coords(Board board);
 
 Winner winner_of(Board board);
-bool is_finished(Board board);
+bool is_board_finished(Board board);

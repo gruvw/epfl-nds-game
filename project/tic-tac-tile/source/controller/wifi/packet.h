@@ -52,7 +52,7 @@ extern u8 timer_counter;
 
 // Utilities
 void local_packet_reset();
-bool is_paired();
+bool is_connected();
 
 // Sending side
 void register_message(Message message);

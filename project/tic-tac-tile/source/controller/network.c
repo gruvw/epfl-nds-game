@@ -1,14 +1,14 @@
 #include <stdlib.h>
 
-#include "wifi/WiFi_minilib.h"
-#include "wifi/packet.h"
-
 #include "../model/board.h"
 
+#include "wifi/packet.h"
+#include "wifi/WiFi_minilib.h"
+
 #include "network.h"
+#include "audio.h"
 #include "game.h"
 #include "setters.h"
-#include "audio.h"
 
 // === Globals ===
 
@@ -29,40 +29,44 @@ bool wifi_setup() {
 // === Wi-Fi messages processing ===
 
 void wifi_process() {
-    Message rec_msg = receive_message();
+    Message msg = receive_message();
 
-    if (rec_msg.type == M_NONE) {
+    if (msg.type == M_NONE || !is_connected()) {
         return;
     }
 
-    // TODO
-    if (wifi_state == W_PLAY) {
-        if (m.type == M_PLAY && active_side != local_side) {
-            // Oponent played a move
-            board = placed_cell(board, active_side, (Coords) m.arg);
-            select_audio(false);
-            active_side = OTHER_SIDE(active_side);
+    if (game_state == G_BEGIN && msg.type == M_START) {
+        // Opponent started the game, they go first
+        local_side = OTHER_SIDE(STARTING_SIDE);
+        next_game_state = G_RUNNING;
+        return;
+    }
 
-            if (is_finished(board)) {
-                // Game over
-                next_game_state = G_FINISHED;
-            } else {
-                // Local NDS' turn
-                set_timer_state(T_STARTED);
-            }
+    if (game_state != G_RUNNING) {
+        return;
+    }
 
-            refresh_game_screen();
-        }
+    if (msg.type == M_PLAY && active_side != local_side) {
+        // Opponent played a move
+        board = placed_cell(board, active_side, (Coords) msg.arg);
+        select_audio(false);
+        active_side = OTHER_SIDE(active_side);
 
-        if (m.type == M_STOP) {
-            // Oponent terminated game early
+        if (is_board_finished(board)) {
+            // Game over
             next_game_state = G_FINISHED;
+        } else {
+            // Local NDS' turn
+            set_timer_state(T_STARTED);
         }
 
-        if (m.type == M_TIME && active_side != local_side) {
-            // Oponent has no time left
-            time_left = 0;
-            next_game_state = G_FINISHED;
-        }
+        refresh_game_screen();
+    } else if (msg.type == M_STOP) {
+        // Opponent terminated game early
+        next_game_state = G_FINISHED;
+    } else if (msg.type == M_TIME && active_side != local_side) {
+        // Opponent has no time left
+        time_left = 0;
+        next_game_state = G_FINISHED;
     }
 }

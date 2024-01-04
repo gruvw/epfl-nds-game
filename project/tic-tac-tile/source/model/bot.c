@@ -6,7 +6,7 @@ typedef struct {
 } BotMove;
 
 BotMove minimax(Board board, Cell side) {
-    if (is_finished(board)) {
+    if (is_board_finished(board)) {
         Cell winner = winner_of(board).side;
         return (BotMove) {
             (winner == EMPTY ? 0 : 1) * (winner == side ? 1 : -1),
