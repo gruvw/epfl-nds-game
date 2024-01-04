@@ -6,9 +6,14 @@
 
 // === Macros / Types ===
 
-#define MAX_ID 0xFE
+typedef enum {
+    BOP_NOT_PAIRED,
+    BOP_LEADER_PAIRED,
+    BOP_BIDIRECTIONALLY_PAIRED,
+} BOPState;
 
 typedef u8 DeviceID;
+#define MAX_ID 0xFE
 
 typedef struct {
     // char game_id;
@@ -23,19 +28,19 @@ typedef struct {
 #define NULL_PACKET (Packet) { P_NONE }
 #define NULL_MESSAGE (Message) { M_NONE }
 
-#define COUNTER_MAX 5 // number of 100ms delays before Wi-Fi message resent
-#define COUNTER_DONE (timer_counter >= COUNTER_MAX && (timer_counter = 0 || 1))
-
-#define VALID_PACKET_DATA(pd) (((pd).packet_type == P_DATA || (pd).packet_type == P_ACK) && (pd).sender_id == paired_id && (pd).reciever_id == local_id)
+#define COUNTER_MAX 5 // number of 100ms delays before Wi-Fi packet resent (could implement linear/exponential backoff)
+#define COUNTER_DONE (timer_counter >= COUNTER_MAX)
 
 // === Globals ===
 
-WiFiState wifi_state;
+BOPState bop_state;
 
-DeviceID local_id;  // this NDS
-DeviceID paired_id;  // opponent NDS
+// P2P-BOP IDs
+DeviceID local_id;  // this device
+DeviceID paired_id;  // paired device
 
-u8 timer_counter;  // incremented by timer every 100ms
+// Packet resend timer
+u8 timer_counter;  // must be incremented by external timer every 100ms
 
 Queue packet_queue;
 
@@ -45,7 +50,7 @@ u8 last_acked_packet_id;  // for received packets
 // === Setup function ===
 
 void local_packet_reset() {
-    wifi_state = W_ALONE;
+    bop_state = BOP_NOT_PAIRED;  // reset P2P-BOP
 
     // Generate random ID between [1, MAX_ID]
     local_id = (DeviceID) ((rand() % MAX_ID) + 1);
@@ -58,7 +63,13 @@ void local_packet_reset() {
     last_acked_packet_id = 0;
 }
 
-// === Utility functions ===
+// === Helper functions ===
+
+bool valid_packet_data(PacketData pd) {
+    return ((pd).packet_type == P_DATA || (pd).packet_type == P_ACK) && (pd).sender_id == paired_id && (pd).reciever_id == local_id;
+}
+
+// === Packet exchange functions ===
 
 void send_packet(Packet packet) {
     char data[PACKET_SIZE] = {
@@ -71,6 +82,8 @@ void send_packet(Packet packet) {
         (char) packet.content.arg,
     };
     sendData(data, PACKET_SIZE);
+
+    timer_counter = 0;
 }
 
 PacketData receive_packet_data() {
@@ -84,40 +97,95 @@ PacketData receive_packet_data() {
     return NULL_PACKET_DATA;
 }
 
-Packet process_packet_data(PacketData packet_data) {
-    // Supposes local has been paired
+// Peer-to-peer Broadcast Ordered Pairing (P2P-BOP) protocol
+// Returns `true` if the packet_data can be used after call, `false` otherwise (packet consumed, or if not paired)
+bool p2p_bop(PacketData packet_data) {
+    if (bop_state == BOP_NOT_PAIRED) {
 
-    if (packet_data.packet_type == P_NONE) {
-        return NULL_PACKET;
+        // Look for a discovering BOP agent, order requests to avoid simultaneous mutual connection
+        if (packet_data.packet_type == P_DISCOVERY && packet_data.sender_id < local_id) {
+            // Local device is BOP leader, the one responsible for connection establishment
+
+            // Locally pair to BOP agent
+            paired_id = packet_data.sender_id;
+            bop_state = BOP_LEADER_PAIRED;
+
+            // Inform other device of pairing
+            send_packet((Packet) { P_CONNECT });
+        } else if (packet_data.packet_type == P_CONNECT && packet_data.reciever_id == local_id) {
+            // Local device is BOP agent, reacting to BOP leader's pairing request
+
+            // BOP leader is already locally paired to this device, pair to it too
+            paired_id = packet_data.sender_id;
+            bop_state = BOP_BIDIRECTIONALLY_PAIRED;
+
+            // Inform other device of connection establishment
+            send_packet((Packet) { P_ESTABLISHED });
+        } else if (COUNTER_DONE) {
+            // Continuously inform BOP leader of discovering state
+            send_packet((Packet) { P_DISCOVERY });
+        }
+
+        return false;
     }
 
-    if (packet_data.packet_type == P_DISCOVERY && packet_data.sender_id == paired_id) {
-        // Inform broadcaster that I have been paired to them
-        send_packet((Packet) { P_CONNECT });
-        return NULL_PACKET;
+    if (bop_state == BOP_LEADER_PAIRED) {
+        if (packet_data.sender_id != paired_id) {
+            // Ignore packets sent by peers other than BOP agent
+        } else if (packet_data.packet_type == P_DISCOVERY) {  // NOLINT(bugprone-branch-clone)
+            // Locally paired BOP agent is still discovering
+            // Do no check receiver id yet, it is invalid as not known by BOP agent at this point
+
+            // Inform BOP agent (sender) that BOP leader (local) is locally paired to them
+            send_packet((Packet) { P_CONNECT });  // previous `P_CONNECT` packet was probably dropped
+        } else if (packet_data.reciever_id != local_id) {
+            // Connection establishment race resolution
+            // When packet comes from BOP agent but is not destined to local device (does not depend on `packet_type`)
+
+            // It means local device lost a connection establishment race for locally paired BOP agent to another BOP leader
+            // BOP agent is paired with another BOP leader, local device lost BOP agent :(
+            local_packet_reset();
+        } else if (packet_data.packet_type == P_ESTABLISHED) {
+            // Connection establishment confirmed by BOP agent
+            bop_state = BOP_BIDIRECTIONALLY_PAIRED;
+        } else if (COUNTER_DONE) {
+            // Continuously inform BOP agent that we want to connect
+            send_packet((Packet) { P_CONNECT });
+        }
+
+        return false;
     }
 
-    // Connection establishment race resolution
-    if (packet_data.sender_id == paired_id && packet_data.reciever_id != local_id) {
-        // Packet sender is opponent but packet not destined to us
-        // It means we lost a connection establishment race with sender with another NDS => we are not really paired
-        local_packet_reset();
-        return NULL_PACKET;
+    if (packet_data.packet_type == P_CONNECT) {
+        // BOP leader (sender) is still waiting for connection confirmation
+        // Or another leader wants to connect (connection establishment race)
+
+        send_packet((Packet) { P_ESTABLISHED });  // previous `P_ESTABLISHED` packet was probably dropped
+        return false;
     }
 
-    // Check packet attributes
-    if (!VALID_PACKET_DATA(packet_data)) {
+    // Bidirectional connection successfully established and packet not consumed
+    return true;
+}
+
+Packet decode_packet_data(PacketData packet_data) {
+    // Supposes successful P2P-BOP bidirectional pairing established
+
+    // Check packet attributes, ignore unsuitable packets
+    if (!valid_packet_data(packet_data)) {
         return NULL_PACKET;
     }
 
     // Decode valid packet
     Packet packet = { packet_data.packet_type, packet_data.packet_id, packet_data.content };
 
-    // Check if received packet is an ACK for our packet
-    if (packet.type == P_ACK && packet.id == peek(&packet_queue).id) {
-        // Last packet has been ACKed
-        dequeue(&packet_queue);
-        return NULL_PACKET;
+    if (packet.type == P_ACK) {
+        // Check if received packet is an ACK for our pending packet
+        if (packet.id == peek(&packet_queue).id) {
+            // Wait to recieve ACK for pending packet before sending the next one
+            dequeue(&packet_queue);  // pending packet has been ACKed
+        }
+        return NULL_PACKET;  // do not ACK or process ACKs
     }
 
     // ACK the received (valid && non-ACK) packet
@@ -125,7 +193,7 @@ Packet process_packet_data(PacketData packet_data) {
 
     // Make sure not to process a packet twice
     if (packet.id == last_acked_packet_id) {
-        // Packet was already ACKed, ACK was probably dropped
+        // Packet was already ACKed, ACK packet was probably dropped
         return NULL_PACKET;  // don't process a second time
     }
     last_acked_packet_id = packet.id;
@@ -133,18 +201,24 @@ Packet process_packet_data(PacketData packet_data) {
     return packet;
 }
 
-void send_pending_packets() {
+void send_first_pending_packet() {
     if (is_empty(&packet_queue)) {
         return;  // no pending packet to send
     }
 
-    Packet packet = peek(&packet_queue);
-    send_packet(packet);
+    // Only send one packet at a time, continuously send pending packet till ACKed
+    send_packet(peek(&packet_queue));
 }
 
 // === Wi-Fi packet interface ===
 
+bool is_paired() {
+    return bop_state == BOP_BIDIRECTIONALLY_PAIRED;
+}
+
 void register_message(Message message) {
+    // Supposes P2P-BOP is bidirectionally paired
+
     enqueue(&packet_queue, (Packet) {
         P_DATA,
         next_packet_id++,
@@ -155,35 +229,16 @@ void register_message(Message message) {
 Message receive_message() {
     PacketData packet_data = receive_packet_data();
 
-    if (wifi_state == W_ALONE) {
-        // Peer-to-peer Broadcast Ordered Connection Pairing (PBOCP) protocol
-
-        // LEFT HERE (check tablet diagram + full packet review + TODOs)
-        if (packet_data.packet_type == P_CONNECT && packet_data.reciever_id == local_id) {
-            // Connection successfully established, both ways
-            paired_id = packet_data.sender_id;
-            wifi_state = W_PAIRED;
-        }
-
-        // Look for other discovering NDS, order requests to avoid simultaneous mutual connection
-        if (packet_data.packet_type == P_DISCOVERY && packet_data.sender_id < local_id) {
-            // We now have an paired NDS
-            paired_id = packet_data.sender_id;
-            wifi_state = W_PAIRED;
-        } else if (COUNTER_DONE) {
-            send_packet((Packet) { P_DISCOVERY });
-        }
-
+    if (!p2p_bop(packet_data)) { // not paired or packet consumed by P2P-BOP
         return NULL_MESSAGE;
     }
 
-    Packet packet = process_packet_data(packet_data);
+    Packet packet = decode_packet_data(packet_data);
 
     if (packet.type == P_NONE) {
         // No incoming packet to process
-
-        if (COUNTER_DONE) {
-            send_pending_packets();
+        if (COUNTER_DONE) {  // continuously send pending non-ACKed packet
+            send_first_pending_packet();
         }
 
         return NULL_MESSAGE;

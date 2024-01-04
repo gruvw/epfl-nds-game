@@ -25,17 +25,17 @@ typedef struct {
     u8 arg;
 } Message;
 
-typedef enum {
-    W_ALONE,
-    W_PAIRED,
-} WiFiState;
-
 typedef u8 PacketID;
 
 typedef enum {
     P_NONE,
+
+    // P2P-BOP
     P_DISCOVERY,
     P_CONNECT,
+    P_ESTABLISHED,
+
+    // Application
     P_DATA,
     P_ACK,
 } PacketType;
@@ -48,12 +48,11 @@ typedef struct {
 
 #endif
 
-extern WiFiState wifi_state;
-
 extern u8 timer_counter;
 
 // Utilities
 void local_packet_reset();
+bool is_paired();
 
 // Sending side
 void register_message(Message message);

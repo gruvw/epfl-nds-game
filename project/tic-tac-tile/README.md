@@ -97,6 +97,7 @@ Have fun !
 - [X] Write README
 - [ ] Wi-Fi two player mode
 - [ ] Clean and polish code
+- [ ] README code structure + BOP protocol explain
 - [ ] Update presentation
 - [ ] Fully test game
 - [ ] GitHub release (add to README)

@@ -76,6 +76,7 @@ void refresh_game_screen() {
 
 // FSM state transitions manager
 void game_fsm() {
+    // TODO connection sprites (searching or check mark)
     if (game_mode == TWO_PLAYER_WIFI && game_state == next_game_state) {
         // Only process Wi-Fi if nothing else to do
         wifi_process();
