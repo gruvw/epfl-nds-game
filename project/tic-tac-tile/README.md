@@ -15,11 +15,11 @@ The last layer of meaning behind the name is the sound of a clock "tic tac" as t
 Here are a few pictures of the Tic-Tac-Tile game:
 
 <div>
-  <img src="https://github.com/gruvw/epfl-nds-game/blob/main/project/tic-tac-tile/docs/nds.jpg" alt="NDS" width="600px">
+  <img src="project/tic-tac-tile/docs/nds.jpg" alt="NDS" width="600px">
   <br>
-  <img src="https://github.com/gruvw/epfl-nds-game/blob/main/project/tic-tac-tile/docs/menu.png" alt="Game Menu" width="197px"> 
-  <img src="https://github.com/gruvw/epfl-nds-game/blob/main/project/tic-tac-tile/docs/game.png" alt="Game Play" width="197px"> 
-  <img src="https://github.com/gruvw/epfl-nds-game/blob/main/project/tic-tac-tile/docs/over.png" alt="Game Over" width="197px"> 
+  <img src="project/tic-tac-tile/docs/menu.png" alt="Game Menu" width="197px"> 
+  <img src="project/tic-tac-tile/docs/game.png" alt="Game Play" width="197px"> 
+  <img src="project/tic-tac-tile/docs/over.png" alt="Game Over" width="197px"> 
 </div>
 
 ## Instructions
@@ -80,6 +80,8 @@ Have fun !
 <!-- TODO document key SELECT (reset and reinitiate wifi connection process) -->
 <!-- TODO WIFI is possible to play multiple simultaneous games of tic-tac-tile on same network and also multiple other NDS wifi games should not interfere -->
 <!-- TODO WIFI stack do not track disconnection from peer, once it is shown as connected it will stay in this state, if the peer is disconnected before successfully (acked) communicating the end of the game, the local device will need to end the game them self (press start) or if game is not started yet press SELECT to restart connection establishment process -->
+<!-- TODO WIFI system stands very strong against packet loss with packet queue and file system -->
+<!-- TODO sometimes, two NDS will get stuck in search mode and you need to reboot -->
 
 ## Roadmap
 
@@ -100,7 +102,7 @@ Have fun !
 - [X] Fully test game
 - [X] Presentation
 - [X] Write README
-- [ ] Wi-Fi two player mode
+- [X] Wi-Fi two player mode
 - [ ] Clean, comment, and polish code
 - [ ] README code structure + BOP protocol explain
 - [ ] Update presentation
