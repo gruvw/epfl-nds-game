@@ -8,7 +8,7 @@
 #define GAME_ID ((char) 0b1110110)
 
 // Number of chars in a packet (4 + number of chars in a Message)
-#define PACKET_SIZE (6 + 3)
+#define PACKET_SIZE (4 + 3)
 
 // === Wi-Fi Types ===
 
