@@ -1,5 +1,7 @@
 #include "WiFi_minilib.h"
 
+#define WIFI_TIMEOUT 200000  // number of times to scan before stop
+
 // Socket port
 #define LOCAL_PORT 8888
 #define OUT_PORT 8888
@@ -33,7 +35,7 @@ int initWiFi() {
     Wifi_ScanMode();
 
     // While the AP is not available, loop
-    while (found == 0) {
+    for (size_t t = 0; t < WIFI_TIMEOUT && found == 0; t++) {
         // Get visible APs and check their SSID with our predefined one
         count = Wifi_GetNumAP();
         for (i = 0; (i < count) && (found == 0); i++) {
@@ -42,6 +44,9 @@ int initWiFi() {
                 found = 1;  // our predefined AP has been found
             }
         }
+    }
+    if (found == 0) { // fail to connect (scan TIMEOUT)
+        return 0;
     }
 
     // Use DHCP to get an IP on the network and connect to the AP

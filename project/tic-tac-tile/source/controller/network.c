@@ -1,6 +1,7 @@
 #include <stdlib.h>
 
 #include "../model/board.h"
+#include "../view/sprites.h"
 
 #include "wifi/packet.h"
 #include "wifi/WiFi_minilib.h"
@@ -14,10 +15,21 @@
 
 bool wifi_ok;  // Wi-Fi was setup correctly
 
+bool last_is_connected;  // used to switch connected sprite
+
 // === Wi-Fi helper functions ===
 
-bool wifi_setup() {
+void wifi_reset() {
+    last_is_connected = false;
+    if (game_mode == TWO_PLAYER_WIFI) {
+        show_connection_sprite(last_is_connected);
+    }
+
     local_packet_reset();
+}
+
+bool wifi_setup() {
+    wifi_reset();
 
     if (wifi_ok) {
         return true;
@@ -31,6 +43,12 @@ bool wifi_setup() {
 void wifi_process() {
     Message msg = receive_message();
 
+    // Show connected sprite when state changes
+    if (!last_is_connected && is_connected()) {
+        last_is_connected = true;
+        show_connection_sprite(last_is_connected);
+    }
+
     if (msg.type == M_NONE || !is_connected()) {
         return;
     }
@@ -42,6 +60,7 @@ void wifi_process() {
         return;
     }
 
+    // Only process further messages when game is running
     if (game_state != G_RUNNING) {
         return;
     }

@@ -4,8 +4,6 @@
 #include "packet.h"
 #include "queue.h"
 
-#include "../audio.h" // testing
-
 // === Macros / Types ===
 
 typedef enum {
@@ -210,8 +208,6 @@ void send_first_pending_packet() {
     if (is_queue_empty(&packet_queue)) {
         return;  // no pending packet to send
     }
-
-    select_audio(true);
 
     // Only send one packet at a time, continuously send pending packet till ACKed
     send_packet(peek(&packet_queue));
