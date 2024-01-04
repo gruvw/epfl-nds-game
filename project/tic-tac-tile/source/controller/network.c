@@ -32,6 +32,7 @@ bool wifi_setup() {
     wifi_reset();
 
     if (wifi_ok) {
+        // Cannot detect if connection to AP was lost, need to reboot NDS in case it happens
         return true;
     }
 
@@ -44,8 +45,8 @@ void wifi_process() {
     Message msg = receive_message();
 
     // Show connected sprite when state changes
-    if (!last_is_connected && is_connected()) {
-        last_is_connected = true;
+    if (last_is_connected != is_connected()) {
+        last_is_connected = is_connected();
         show_connection_sprite(last_is_connected);
     }
 
@@ -68,7 +69,7 @@ void wifi_process() {
     if (msg.type == M_PLAY && active_side != local_side) {
         // Opponent played a move
         board = placed_cell(board, active_side, (Coords) msg.arg);
-        select_audio(false);
+        select_sound(false);
         active_side = OTHER_SIDE(active_side);
 
         if (is_board_finished(board)) {

@@ -39,10 +39,12 @@ void game_fsm() {
         hide_begin();
         refresh_game_screen();
 
-        game_audio();
+        game_music();
     }
 
     if (next_game_state == G_FINISHED) {  // game over
+        hide_wifi_sprites();
+
         set_timer_state(T_OVER);
         show_game_over();
 
@@ -65,7 +67,7 @@ void game_fsm() {
             show_game_over_sprites(OTHER_SIDE(active_side), true);
         }
 
-        game_over_audio();
+        game_over_sound();
     }
 
     game_state = next_game_state;  // commit new FSM state
@@ -97,17 +99,23 @@ void wifi_timer_handler() {
 void keys_handler() {
     u16 pressed_keys = 0;  // reset register used for `PRESSED_ONCE`
 
-    if (game_state == G_BEGIN && PRESSED_ONCE(KEY_START)) {  // attempt to start game
-        if (game_mode == TWO_PLAYER_WIFI) {
-            if (is_connected()) {  // wait for a connection
-                // Local started the game, they go first
-                // TODO try start both at same time
-                active_side = STARTING_SIDE;
-                register_message((Message) { M_START });
+    if (game_state == G_BEGIN) {
+        if (PRESSED_ONCE(KEY_START)) {  // attempt to start game
+            if (game_mode == TWO_PLAYER_WIFI) {
+                if (is_connected()) {  // wait for a connection before starting
+                    // Players must not start at the same time!
+
+                    // Local started the game, they go first
+                    active_side = STARTING_SIDE;
+                    register_message((Message) { M_START });
+                    next_game_state = G_RUNNING;
+                }
+            } else {
                 next_game_state = G_RUNNING;
             }
-        } else {
-            next_game_state = G_RUNNING;
+        } else if (PRESSED_ONCE(KEY_SELECT) && game_mode == TWO_PLAYER_WIFI) {
+            // Use start to fully reinitiate connection establishment protocol
+            wifi_reset();
         }
     }
 
@@ -126,7 +134,7 @@ void keys_handler() {
         // Place cell on selection
         if (PRESSED_ONCE(KEY_A) && cell_at(board, selection_coords) == EMPTY && local_side == active_side) {
             board = placed_cell(board, active_side, selection_coords);
-            select_audio(false);
+            select_sound(false);
 
             // Next state to do
             if (game_mode == SINGLE_PLAYER && !is_board_finished(board)) {
@@ -183,7 +191,7 @@ void interrupts_setup() {
     irqEnable(IRQ_TIMER(2));
 
     // Button Interrupts
-    REG_KEYCNT = BIT(14) | KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT | KEY_A | KEY_START;
+    REG_KEYCNT = BIT(14) | KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT | KEY_A | KEY_START | KEY_SELECT;
     irqSet(IRQ_KEYS, &keys_handler);
     irqEnable(IRQ_KEYS);
 }

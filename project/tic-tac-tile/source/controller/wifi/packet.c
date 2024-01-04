@@ -1,4 +1,3 @@
-#include <stdlib.h>
 #include "WiFi_minilib.h"
 
 #include "packet.h"
@@ -12,8 +11,11 @@ typedef enum {
     BOP_BIDIRECTIONALLY_PAIRED,
 } BOPState;
 
-typedef u8 DeviceID;
-#define MAX_ID 0xFE
+typedef u16 DeviceID;
+#define MAX_ID 0xFFFE
+
+#define MSBYTE(id) ((id) >> 8)
+#define ID_FROM(msbyte, lsbyte) ((((DeviceID) (msbyte)) << 8) | (lsbyte))
 
 typedef struct {
     // char game_id;
@@ -28,7 +30,7 @@ typedef struct {
 #define NULL_PACKET (Packet) { P_NONE }
 #define NULL_MESSAGE (Message) { M_NONE }
 
-#define COUNTER_MAX 10 // number of 100ms delays before Wi-Fi packet resent (could implement linear/exponential backoff)
+#define COUNTER_MAX 5 // number of 100ms delays before Wi-Fi packet resent (could implement linear/exponential backoff)
 #define COUNTER_DONE (timer_counter >= COUNTER_MAX)
 
 // === Globals ===
@@ -52,7 +54,7 @@ u8 last_acked_packet_id;  // for received packets
 void local_packet_reset() {
     bop_state = BOP_NOT_PAIRED;  // reset P2P-BOP
 
-    // Generate random ID between [1, MAX_ID], must already be seeded!
+    // Generate random ID between [1, MAX_ID), must already be seeded!
     local_id = (DeviceID) ((rand() % MAX_ID) + 1);
     paired_id = 0;  // opponent not yet connected
 
@@ -76,7 +78,9 @@ void send_packet(Packet packet) {
         GAME_ID,
         packet.type,
         (char) packet.id,
+        (char) MSBYTE(local_id),  // sender
         (char) local_id,
+        (char) MSBYTE(paired_id),  // receiver
         (char) paired_id,
         packet.content.type,
         (char) packet.content.arg,
@@ -89,7 +93,12 @@ PacketData receive_packet_data() {
 
     // Check for correct game and size
     if (receiveData(data, PACKET_SIZE) == PACKET_SIZE && data[0] == GAME_ID) {
-        return (PacketData) { data[1], data[2], data[3], data[4], data[5], data[6] };
+        return (PacketData) {
+            data[1], data[2],
+            ID_FROM(data[3], data[4]),  // sender
+            ID_FROM(data[5], data[6]),  // receiver
+            data[7], data[8],
+        };
     }
 
     return NULL_PACKET_DATA;

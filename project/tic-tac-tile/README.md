@@ -58,7 +58,7 @@ Select among the 3 **speeds**:
 
 1. Select the settings that you want by using the bottom touch screen.
 2. Press on the `start` button to launch a game.
-    * In Wi-Fi two player mode, both players need to press the `start` button to connect the two Nintendos.
+    * In Wi-Fi two player mode, <!-- TODO wifi explain in wifi section, do not press start at same time, press start while search to reinitiate connection process, if Wi-Fi connection is totally lost no way to know so reboot NDS, if momentary lost it's ok they will sync packets -->
 3. Select the square where you want to place your piece using the `Left`, `Right`, `Up`, `Down` arrow buttons.
 4. Press on `A` to confirm your choice.
    Be carefull about the progress bar, you need to play before you run out of time to win!
@@ -75,6 +75,11 @@ Select among the 3 **speeds**:
 7. You can start a new game by pressing the `start` button to go back to the settings selection menu.
 
 Have fun !
+
+<!-- TODO technicals section, P2P-BOP + ACK fsm -->
+<!-- TODO document key SELECT (reset and reinitiate wifi connection process) -->
+<!-- TODO WIFI is possible to play multiple simultaneous games of tic-tac-tile on same network and also multiple other NDS wifi games should not interfere -->
+<!-- TODO WIFI stack do not track disconnection from peer, once it is shown as connected it will stay in this state, if the peer is disconnected before successfully (acked) communicating the end of the game, the local device will need to end the game them self (press start) or if game is not started yet press SELECT to restart connection establishment process -->
 
 ## Roadmap
 
@@ -96,7 +101,7 @@ Have fun !
 - [X] Presentation
 - [X] Write README
 - [ ] Wi-Fi two player mode
-- [ ] Clean and polish code
+- [ ] Clean, comment, and polish code
 - [ ] README code structure + BOP protocol explain
 - [ ] Update presentation
 - [ ] Fully test game

@@ -60,7 +60,7 @@ void reset_game() {
     hide_game_over_sprites();
     show_begin();
 
-    menu_audio();
+    menu_music();
 }
 
 void refresh_game_screen() {
@@ -83,16 +83,16 @@ void touch_handler() {
     // Settings menu
     if (SINGLE_PLAYER_TOUCHED(pos)) {
         set_game_mode(SINGLE_PLAYER);
-        select_audio(true);
+        select_sound(true);
         wifi_reset();
         hide_wifi_sprites();
     } else if (TWO_PLAYER_TOUCHED(pos)) {
         set_game_mode(TWO_PLAYER_LOCAL);
-        select_audio(true);
+        select_sound(true);
         wifi_reset();
         hide_wifi_sprites();
     } else if (TWO_PLAYER_WIFI_TOUCHED(pos)) {
-        select_audio(true);
+        select_sound(true);
         show_wifi_sprite();
         if (wifi_setup()) {
             show_connection_sprite(false);
@@ -103,13 +103,13 @@ void touch_handler() {
         }
     } else if (FAST_TOUCHED(pos)) {
         set_game_speed(FAST);
-        select_audio(true);
+        select_sound(true);
     } else if (MEDIUM_TOUCHED(pos)) {
         set_game_speed(MEDIUM);
-        select_audio(true);
+        select_sound(true);
     } else if (SLOW_TOUCHED(pos)) {
         set_game_speed(SLOW);
-        select_audio(true);
+        select_sound(true);
     }
 }
 

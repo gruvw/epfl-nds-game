@@ -5,6 +5,8 @@
 #include "soundbank.h"
 #include "soundbank_bin.h"
 
+#define MUSIC_VOLUME 190
+
 void audio_setup() {
     mmInitDefaultMem((mm_addr) soundbank_bin);
 
@@ -17,26 +19,26 @@ void audio_setup() {
     mmLoadEffect(SFX_PLAY);
     mmLoadEffect(SFX_TOUCH);
 
-    mmSetModuleVolume(190);
+    mmSetModuleVolume(MUSIC_VOLUME);
 }
 
 // TODO enable music
 
-void menu_audio() {  // enable menu music
+void menu_music() {  // enable menu music
     mmStop();
     // mmStart(MOD_MENU, MM_PLAY_LOOP);
 }
 
-void game_audio() {  // enable game music
+void game_music() {  // enable game music
     mmStop();
     // mmStart(MOD_GAME, MM_PLAY_LOOP);
 }
 
-void select_audio(bool touch) {
+void select_sound(bool touch) {
     mmEffect(touch ? SFX_TOUCH : SFX_PLAY);
 }
 
-void game_over_audio() {
+void game_over_sound() {
     mmStop();
     mmEffect(SFX_OVER);
 }

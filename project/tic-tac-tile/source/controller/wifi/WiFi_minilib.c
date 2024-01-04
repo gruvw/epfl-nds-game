@@ -1,6 +1,7 @@
 #include "WiFi_minilib.h"
+#include "nds/interrupts.h"
 
-#define WIFI_TIMEOUT 200000  // number of times to scan before stop
+#define WIFI_TIMEOUT 150  // number of times to scan for AP before timeout
 
 // Socket port
 #define LOCAL_PORT 8888
@@ -44,6 +45,8 @@ int initWiFi() {
                 found = 1;  // our predefined AP has been found
             }
         }
+
+        swiWaitForVBlank(); // wait a bit
     }
     if (found == 0) { // fail to connect (scan TIMEOUT)
         return 0;
