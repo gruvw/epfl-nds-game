@@ -48,7 +48,7 @@ It features 3 **game modes**:
 * Two player mode, single NDS
 * Two player mode, two NDS over Wi-Fi
 
-Select among the 3 **speeds**:
+Select among the 3 **speeds** and adjust the game's difficulty:
 
 * Slow (green)
 * Medium (orange)
@@ -58,7 +58,8 @@ Select among the 3 **speeds**:
 
 1. Select the settings that you want by using the bottom touch screen.
 2. Press on the `start` button to launch a game.
-    * In Wi-Fi two player mode, <!-- TODO wifi explain in wifi section, do not press start at same time, press start while search to reinitiate connection process, if Wi-Fi connection was connected but is now totally lost no way to know so reboot NDS, if momentary lost it's ok they will sync packets -->
+    * In Wi-Fi two player mode, <!-- TODO wifi explain in wifi section, do not press start at same time, press start while search to reinitiate connection process, if Wi-Fi connection was connected but is now permanantly lost no way to know so press SELECT to reconnect to wifi, if momentary lost it's ok they will sync packets -->
+    <!-- TODO explain how to play with wifi, AP phone, start and search procedures, stay closer to phone to work, any side can choose their desired difficulty -->
 3. Select the square where you want to place your piece using the `Left`, `Right`, `Up`, `Down` arrow buttons.
 4. Press on `A` to confirm your choice.
    Be carefull about the progress bar, you need to play before you run out of time to win!
@@ -66,7 +67,7 @@ Select among the 3 **speeds**:
     * In single player mode, the bot will play instantly after your turn.
     * In (local) two player, mode you need to pass the Nintendo DS to the other player so they can play.
     * In Wi-Fi two player mode, simply wait for your opponent to play on their Nintendo DS.
-6. Carry on till you reach the Game Over screen. Alternatively you can also press `start` at any moment to put an end to the current game and go directly to the Game Over screen.
+6. Carry on till you reach the Game Over screen. Alternatively you can also press the `start` button at any moment to put an end to the current game and go directly to the Game Over screen.
     * If one of the side won, their 3 winning pieces will be highlighted on the board.
       Their piece will be crowned on the bottom screen.
     * A clock will be displayed on the bottom screen in case they won because the other side ran out of time.
@@ -76,7 +77,10 @@ Select among the 3 **speeds**:
 
 Have fun !
 
-<!-- TODO technicals section, P2P-BOP + ACK fsm -->
+<!-- TODO project less about the actual game but more about the hardware and peripherals utilization -->
+<!-- TODO project presentation to README -->
+<!-- TODO be careful, sometimes a NDS physical button press can be triggered multiple times (troubleshoot section) -->
+<!-- TODO technicals section, P2P-BOP (leader, agent) + ACK fsm (decoding packet data) -->
 <!-- TODO WIFI if can't find AP, do not stuck the game, just do not activate wifi two player mode, can retry later -->
 <!-- TODO document key SELECT (reset and reinitiate wifi connection process) -->
 <!-- TODO WIFI is possible to play multiple simultaneous games of tic-tac-tile on same network and also multiple other NDS wifi games should not interfere -->
@@ -104,9 +108,13 @@ Have fun !
 - [X] Fully test game
 - [X] Presentation
 - [X] Write README
-- [X] Wi-Fi two player mode
-- [ ] Clean, comment, and polish code
-- [ ] README code structure + BOP protocol explain
-- [ ] Update presentation
+- [X] Wi-Fi packet stack + P2P-BOP design and implementation
+- [X] Wi-Fi ACK system
+- [X] Wi-Fi two player mode messages processing
+- [X] Keys debounce with timer
+- [X] Same packet simultaneous sending resolution (start game)
+- [X] Clean, comment, and polish code
 - [ ] Fully test game
+- [ ] Update presentation
+- [ ] README code structure + BOP protocol explain
 - [ ] GitHub release (add to README)

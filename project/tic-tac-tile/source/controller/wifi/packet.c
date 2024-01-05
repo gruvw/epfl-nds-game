@@ -1,7 +1,8 @@
 #include "WiFi_minilib.h"
 
-#include "packet.h"
 #include "queue.h"
+
+#include "packet.h"
 
 // === Macros / Types ===
 
@@ -12,7 +13,7 @@ typedef enum {
 } BOPState;
 
 typedef u16 DeviceID;
-#define MAX_ID 0xFD  // non-inclusive
+#define MAX_ID 0xFD  // noninclusive
 
 typedef struct {
     PacketType packet_type;
@@ -20,24 +21,24 @@ typedef struct {
     DeviceID sender_id;
     DeviceID reciever_id;
     Message content;
-} PacketData;  // raw packet, not yet valid, only checked for correct game and size
+} PacketData;  // raw packet, not yet valid, only checked for correct game ID and size
 
 #define NULL_PACKET_DATA (PacketData) { P_NONE }
 #define NULL_PACKET (Packet) { P_NONE }
 #define NULL_MESSAGE (Message) { M_NONE }
 
-#define COUNTER_MAX 6 // number of 100ms delays before Wi-Fi packet resent (could implement linear/exponential backoff)
+#define COUNTER_MAX 6 // number of 100ms delays before Wi-Fi packet resent (could easily implement linear/exponential backoff)
 #define COUNTER_DONE (timer_counter >= COUNTER_MAX)
 
 // === Globals ===
 
-BOPState bop_state;
+BOPState bop_state;  // P2P-BOP protocol state
 
 // P2P-BOP IDs
 DeviceID local_id;  // this device
 DeviceID paired_id;  // paired device
 
-// Packet resend timer
+// Packet sending retry timer
 u8 timer_counter;  // must be incremented by external timer every 100ms
 
 Queue packet_queue;
@@ -47,7 +48,7 @@ u8 last_acked_packet_id;  // for received packets
 
 // === Setup function ===
 
-void local_packet_reset() {
+void packet_connection_reset() {
     bop_state = BOP_NOT_PAIRED;  // reset P2P-BOP
 
     // Generate random ID between [1, MAX_ID), must already be seeded!
@@ -55,16 +56,22 @@ void local_packet_reset() {
     paired_id = 0;  // opponent not yet connected
 
     timer_counter = 0;
-    packet_queue = (Queue) {{0}, 0, 0};
+    packet_queue = EMPTY_QUEUE;
 
+    // First packet should not be considered ACKed yet => start with different number
     next_packet_id = 1;
     last_acked_packet_id = 0;
 }
 
 // === Helper functions ===
 
+bool is_connection_leader() {
+    // Supposes the connection is already established (bidirectional)
+    return local_id > paired_id;
+}
+
 bool valid_packet_data(PacketData pd) {
-    return ((pd).packet_type == P_DATA || (pd).packet_type == P_ACK) && (pd).sender_id == paired_id && (pd).reciever_id == local_id;
+    return (pd.packet_type == P_DATA || pd.packet_type == P_ACK) && pd.sender_id == paired_id && pd.reciever_id == local_id;
 }
 
 // === Packet exchange functions ===
@@ -136,7 +143,7 @@ bool p2p_bop(PacketData packet_data) {
     if (bop_state == BOP_LEADER_PAIRED) {
         // Note: protocol can be stuck (in unconnected state) here if locally paired BOP agent
         // never sends additional packets (e.g.: because reset), or packets never reach local device.
-        // Use timeout or application reset (call `local_packet_reset`).
+        // Use timeout or application reset (call `connection_reset`).
 
         if (packet_data.sender_id != paired_id) {
             // Ignore packets sent by peers other than BOP agent
@@ -152,7 +159,7 @@ bool p2p_bop(PacketData packet_data) {
 
             // It means local device lost a connection establishment race for locally paired BOP agent to another BOP leader
             // BOP agent is paired with another BOP leader, local device lost BOP agent :(
-            local_packet_reset();
+            packet_connection_reset();
         } else if (packet_data.packet_type == P_ESTABLISHED) {
             // Connection establishment confirmed by BOP agent
             bop_state = BOP_BIDIRECTIONALLY_PAIRED;
@@ -177,7 +184,7 @@ bool p2p_bop(PacketData packet_data) {
 }
 
 Packet decode_packet_data(PacketData packet_data) {
-    // Supposes successful P2P-BOP bidirectional pairing established
+    // Supposes successful P2P-BOP bidirectional pairing already established
 
     // Check packet attributes, ignore unsuitable packets
     if (!valid_packet_data(packet_data)) {
@@ -196,7 +203,7 @@ Packet decode_packet_data(PacketData packet_data) {
         return NULL_PACKET;  // do not ACK or process ACKs
     }
 
-    // ACK the received (valid && non-ACK) packet
+    // ACK the received (valid && non-ACKed) packet
     send_packet((Packet) { P_ACK, packet.id });
 
     // Make sure not to process a packet twice
@@ -216,13 +223,13 @@ void send_first_pending_packet() {
         return;  // no pending packet to send
     }
 
-    // Only send one packet at a time, continuously send pending packet till ACKed
+    // Only send one non-ACKed packet at a time
     send_packet(peek(&packet_queue));
 }
 
 // === Wi-Fi packet interface ===
 
-bool is_connected() {
+bool packet_is_connected() {
     return bop_state == BOP_BIDIRECTIONALLY_PAIRED;
 }
 
@@ -239,7 +246,7 @@ void register_message(Message message) {
 Message receive_message() {
     PacketData packet_data = receive_packet_data();
 
-    if (!p2p_bop(packet_data)) { // not paired or packet consumed by P2P-BOP
+    if (!p2p_bop(packet_data)) {  // not paired or packet consumed by P2P-BOP
         return NULL_MESSAGE;
     }
 
@@ -247,7 +254,7 @@ Message receive_message() {
 
     if (packet.type == P_NONE) {
         // No incoming packet to process
-        if (COUNTER_DONE) {  // continuously send pending non-ACKed packet
+        if (COUNTER_DONE) {  // continuously send pending packet till ACKed
             send_first_pending_packet();
         }
 

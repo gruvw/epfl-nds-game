@@ -118,6 +118,11 @@ void closeSocket() {
     // Shutdown and close the socket in both directions
     shutdown(socket_id, SHUT_RDWR);
     closesocket(socket_id);
+
+    memset(&sa_in, 0, sizeof(sa_in));
+    memset(&sa_out, 0, sizeof(sa_out));
+    socket_id = 0;
+
     socket_opened = false;
 }
 

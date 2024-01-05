@@ -1,6 +1,6 @@
 #include "queue.h"
 
-#define NEXT(q) ((queue->rear + 1) % QUEUE_SIZE)
+#define NEXT(e) (((e) + 1) % QUEUE_SIZE)
 
 // == Queue Functions ===
 
@@ -9,7 +9,7 @@ bool is_queue_empty(Queue * queue) {
 }
 
 bool is_queue_full(Queue * queue) {
-    return NEXT(queue) == queue->front;
+    return NEXT(queue->rear) == queue->front;
 }
 
 void enqueue(Queue * queue, Type item) {
@@ -18,20 +18,20 @@ void enqueue(Queue * queue, Type item) {
     }
 
     queue->data[queue->rear] = item;
-    queue->rear = NEXT(queue);
+    queue->rear = NEXT(queue->rear);
 }
 
 Type peek(Queue * queue) {
-    // Supposed non-empty, otherwise continuously returns same element
+    // Supposed nonempty, otherwise continuously returns same element
     return queue->data[queue->front];
 }
 
 Type dequeue(Queue * queue) {
-    // Supposed non-empty, otherwise continuously returns same element
+    // Supposed nonempty, otherwise continuously returns same element
     Type value = queue->data[queue->front];
 
-    if (queue->front != queue->rear) {  // more elements in the queue
-        queue->front = (queue->front + 1) % QUEUE_SIZE;
+    if (!is_queue_empty(queue)) {
+        queue->front = NEXT(queue->front);
     }
 
     return value;

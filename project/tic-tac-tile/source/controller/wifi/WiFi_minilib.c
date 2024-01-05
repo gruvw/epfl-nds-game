@@ -1,5 +1,8 @@
+#include <nds.h>
+#include <dswifi9.h>
+#include <netinet/in.h>
+
 #include "WiFi_minilib.h"
-#include "nds/interrupts.h"
 
 #define WIFI_TIMEOUT 150  // number of times to scan for AP before timeout
 

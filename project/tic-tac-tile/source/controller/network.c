@@ -1,56 +1,76 @@
-#include <stdlib.h>
-
 #include "../model/board.h"
 #include "../view/sprites.h"
 
 #include "wifi/packet.h"
 #include "wifi/WiFi_minilib.h"
 
-#include "network.h"
 #include "audio.h"
 #include "game.h"
 #include "setters.h"
 
+#include "network.h"
+
+#define STATE_FROM(connected) (connected ? WS_PAIRED : WS_WIFI)
+
 // === Globals ===
 
-bool wifi_ok;  // Wi-Fi was setup correctly
-
-bool last_is_connected;  // used to switch connected sprite
+WifiState wifi_state = WS_NO_WIFI;  // used to switch connected sprite
 
 // === Wi-Fi helper functions ===
 
-void wifi_reset() {
-    last_is_connected = false;
-    if (game_mode == TWO_PLAYER_WIFI) {
-        show_connection_sprite(last_is_connected);
-    }
+void wifi_reset(bool display) {
+    packet_connection_reset();
 
-    local_packet_reset();
+    if (display) {
+        show_connection_sprite(wifi_state);
+    } else {
+        hide_wifi_sprites();
+    }
 }
 
+// Tries to fully setup Wi-Fi connection to AP, returns `true` if successful, `false` otherwise
 bool wifi_setup() {
-    wifi_reset();
-
-    if (wifi_ok) {
-        // Cannot detect if connection to AP was lost, need to reboot NDS in case it happens
+    //// AS WIFI DISCONNECT IS NOT WORKING CORRECTLY
+    wifi_reset(true);
+    if (wifi_state != WS_NO_WIFI) {
         return true;
     }
 
-    return wifi_ok = (initWiFi() > 0 && openSocket() > 0);
+    //// IF WIFI DISCONNECT WAS WORKING CORRECTLY
+    // wifi_state = WS_NO_WIFI;
+    // wifi_reset(true);
+    // closeSocket();
+    // disconnectFromWiFi();
+
+    if (initWiFi() > 0 && openSocket() > 0) {
+        wifi_state = WS_WIFI;
+        show_connection_sprite(wifi_state);
+        return true;
+    }
+
+    hide_wifi_sprites();
+
+    return false;
 }
 
 // === Wi-Fi messages processing ===
 
 void wifi_process() {
+    // Must be connected to Wi-Fi AP to continue
+    if (wifi_state == WS_NO_WIFI) {
+        return;
+    }
+
     Message msg = receive_message();
 
     // Show connected sprite when state changes
-    if (last_is_connected != is_connected()) {
-        last_is_connected = is_connected();
-        show_connection_sprite(last_is_connected);
+    WifiState current_state = STATE_FROM(packet_is_connected());
+    if (wifi_state != current_state) {
+        wifi_state = current_state;
+        show_connection_sprite(wifi_state);
     }
 
-    if (msg.type == M_NONE || !is_connected()) {
+    if (msg.type == M_NONE || !packet_is_connected()) {
         return;
     }
 
@@ -59,6 +79,17 @@ void wifi_process() {
         local_side = OTHER_SIDE(STARTING_SIDE);
         next_game_state = G_RUNNING;
         return;
+    }
+
+    // Simultaneous start game conflict, leader keeps the game started
+    if (game_state == G_RUNNING && msg.type == M_START && !is_connection_leader()) {
+        // Reset current game state
+        local_side = OTHER_SIDE(STARTING_SIDE);
+        active_side = STARTING_SIDE;
+        board = START_BOARD;
+        set_timer_state(T_UNUSED);
+        set_progress_time_left(STARTING_TIME);
+        refresh_game_screen();
     }
 
     // Only process further messages when game is running
@@ -86,7 +117,7 @@ void wifi_process() {
         next_game_state = G_FINISHED;
     } else if (msg.type == M_TIME && active_side != local_side) {
         // Opponent has no time left
-        time_left = 0;
+        progress_time_left = 0;
         next_game_state = G_FINISHED;
     }
 }

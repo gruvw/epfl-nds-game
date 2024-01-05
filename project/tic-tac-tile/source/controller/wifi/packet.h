@@ -1,9 +1,5 @@
 #include <nds.h>
 
-#ifndef INCLUDE_PACKET
-
-#define INCLUDE_PACKET
-
 // Random GAME_ID (should be unique to every NDS game)
 #define GAME_ID ((char) 0b1110110)
 
@@ -11,6 +7,10 @@
 #define PACKET_SIZE (4 + 3)
 
 // === Wi-Fi Types ===
+
+#ifndef INCLUDE_PACKET
+
+#define INCLUDE_PACKET
 
 typedef enum {
     M_NONE,
@@ -51,8 +51,9 @@ typedef struct {
 extern u8 timer_counter;
 
 // Utilities
-void local_packet_reset();
-bool is_connected();
+void packet_connection_reset();
+bool packet_is_connected();
+bool is_connection_leader();
 
 // Sending side
 void register_message(Message message);

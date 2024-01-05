@@ -6,13 +6,14 @@
 
 #include "wifi/packet.h"
 
-#include "game.h"
 #include "interrupts.h"
 #include "network.h"
 #include "setters.h"
 #include "audio.h"
 
-// === Inputs / Touch Areas ===
+#include "game.h"
+
+// === Touch Areas ===
 
 // Game mode
 #define SINGLE_PLAYER_TOUCHED(pos) (game_mode != SINGLE_PLAYER && 56 <= pos.px && pos.px <= 199 && 96 <= pos.py && pos.py <= 112)
@@ -26,36 +27,40 @@
 
 // === Globals ===
 
-// State
+// Game State
 GameState game_state;
 GameState next_game_state;
 TimerState timer_state;
 
+// Model state
 Board board;
 Coords selection_coords;
 Cell local_side;
 Cell active_side;
 
-u8 time_left;  // in progress bar tiles (from 0 to STARTING_TIME)
+u8 progress_time_left;  // in progress bar tiles (from 0 to STARTING_TIME)
 
-// Settings
+// Game Settings
 GameMode game_mode;
 GameSpeed game_speed;
 
 // === Utilities ===
 
 void reset_game() {
+    // Reset model state
     board = START_BOARD;
     selection_coords = MID_MID;  // selection on center on start
     local_side = active_side = STARTING_SIDE;  // `local_side` overwritten by Wi-Fi
 
-    wifi_reset();
+    wifi_reset(game_mode == TWO_PLAYER_WIFI);
 
+    // Reset progress bar
     set_timer_state(T_UNUSED);
-    set_time_left(STARTING_TIME);
+    set_progress_time_left(STARTING_TIME);
 
     clear_game_screen();
 
+    // Begin menu
     hide_game_over();
     hide_game_over_sprites();
     show_begin();
@@ -63,6 +68,7 @@ void reset_game() {
     menu_music();
 }
 
+// Makes sure the current model state is accurately represented on the top screen
 void refresh_game_screen() {
     clear_game_screen();
     draw_select(selection_coords);
@@ -71,6 +77,7 @@ void refresh_game_screen() {
 
 // Touch screen handler
 void touch_handler() {
+    // Only allow the touch screen when the game has not been started yet
     if (game_state != G_BEGIN) {
         return;
     }
@@ -80,26 +87,20 @@ void touch_handler() {
     touchPosition pos;
     touchRead(&pos);
 
-    // Settings menu
+    // Change settings menu
     if (SINGLE_PLAYER_TOUCHED(pos)) {
         set_game_mode(SINGLE_PLAYER);
         select_sound(true);
-        wifi_reset();
-        hide_wifi_sprites();
+        wifi_reset(false);
     } else if (TWO_PLAYER_TOUCHED(pos)) {
         set_game_mode(TWO_PLAYER_LOCAL);
         select_sound(true);
-        wifi_reset();
-        hide_wifi_sprites();
+        wifi_reset(false);
     } else if (TWO_PLAYER_WIFI_TOUCHED(pos)) {
         select_sound(true);
-        show_wifi_sprite();
         if (wifi_setup()) {
-            show_connection_sprite(false);
+            // Successful Wi-Fi setup
             set_game_mode(TWO_PLAYER_WIFI);
-        } else {
-            // unsuccessful Wi-Fi setup
-            hide_wifi_sprites();
         }
     } else if (FAST_TOUCHED(pos)) {
         set_game_speed(FAST);

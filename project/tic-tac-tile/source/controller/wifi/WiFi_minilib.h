@@ -1,12 +1,3 @@
-#ifndef WIFI_MINILIB_H
-#define WIFI_MINILIB_H
-
-#include <nds.h>
-#include <dswifi9.h>
-#include <netinet/in.h>
-#include <sys/socket.h>
-#include <sys/types.h>
-
 #define SSID "SEM-NDS"
 
 // WiFi initialization
@@ -26,5 +17,3 @@ void closeSocket();
 
 // Disconnect the WiFi
 void disconnectFromWiFi();
-
-#endif

@@ -1,9 +1,10 @@
 #include <nds.h>
 #include <maxmod9.h>
-#include <stdbool.h>
 
 #include "soundbank.h"
 #include "soundbank_bin.h"
+
+#include "audio.h"
 
 #define MUSIC_VOLUME 190
 
@@ -22,16 +23,14 @@ void audio_setup() {
     mmSetModuleVolume(MUSIC_VOLUME);
 }
 
-// TODO enable music
-
-void menu_music() {  // enable menu music
+void menu_music() {
     mmStop();
-    // mmStart(MOD_MENU, MM_PLAY_LOOP);
+    mmStart(MOD_MENU, MM_PLAY_LOOP);
 }
 
-void game_music() {  // enable game music
+void game_music() {
     mmStop();
-    // mmStart(MOD_GAME, MM_PLAY_LOOP);
+    mmStart(MOD_GAME, MM_PLAY_LOOP);
 }
 
 void select_sound(bool touch) {

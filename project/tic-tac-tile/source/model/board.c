@@ -1,12 +1,9 @@
-#include <stdbool.h>
 #include <stddef.h>
-#include <stdio.h>
 
 #include "board.h"
 
 // === Utility macros ===
 
-#define COL_MOD(c) ((c) < 0 ? (c) + SIDE : (c))
 #define B(coords) ((uint32_t) coords << 1U)
 #define PREFIX(board, coords) ((board) >> B(coords))
 

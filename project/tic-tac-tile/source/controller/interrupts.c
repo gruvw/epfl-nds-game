@@ -4,6 +4,7 @@
 #include "../view/sprites.h"
 #include "../view/graphics.h"
 
+#include "nds/input.h"
 #include "wifi/packet.h"
 
 #include "game.h"
@@ -11,8 +12,34 @@
 #include "setters.h"
 #include "audio.h"
 
-// Keys
-#define PRESSED_ONCE(key) ((~REG_KEYINPUT & (key)) != 0 && ((pressed_keys & (key)) == 0) && ((pressed_keys |= (key)) || 1))
+#include "interrupts.h"
+
+// === Keys Debounce Helper ===
+
+typedef u16 DebounceTimer;
+DebounceTimer debounce_timer = 1;
+DebounceTimer last_debounce_timer = 0;
+
+u16 last_key = 0;
+
+bool is_pressed(u16 key) {
+    int diff = abs((int) debounce_timer - (int) last_debounce_timer);
+
+    // If pressed same button make sure it is not too close in time
+    // At least 100ms between two presses of same button
+    if ((~REG_KEYINPUT & key) == 0 || (key == last_key && diff <= 1)) {
+        return false;
+    }
+
+    // Wait 3 times more for START and SELECT
+    if ((key == KEY_START || key == KEY_SELECT) && diff <= 3) {
+        return false;
+    }
+
+    last_key = key;
+    last_debounce_timer = debounce_timer;
+    return true;
+}
 
 // === Interrupt handlers (ISRs) ===
 
@@ -61,7 +88,7 @@ void game_fsm() {
         draw_board(board);
 
         // Show end sprites: winner and lost by time or not
-        if (time_left > 0) {
+        if (progress_time_left > 0) {
             show_game_over_sprites(a.side, false);
         } else {
             show_game_over_sprites(OTHER_SIDE(active_side), true);
@@ -76,10 +103,10 @@ void game_fsm() {
 // Handles game's progress bar
 void progress_timer_handler() {
     if (game_state == G_RUNNING && timer_state == T_STARTED) {
-        if (time_left > 0) {
-            set_time_left(time_left - 1);  // updates time_left
+        if (progress_time_left > 0) {
+            set_progress_time_left(progress_time_left - 1);  // updates time_left
         }
-        if (time_left <= 0) {
+        if (progress_time_left <= 0) {
             if (game_mode == TWO_PLAYER_WIFI) {
                 // Local has no time left
                 register_message((Message) { M_TIME });
@@ -90,49 +117,45 @@ void progress_timer_handler() {
     }
 }
 
-// Handles Wi-Fi timer increment, avoid spamming messages
-void wifi_timer_handler() {
-    timer_counter++;
+// Periodic timer increment handler
+void timers_handler() {
+    timer_counter++;  // handles Wi-Fi timer increment, avoid spamming messages
+    debounce_timer++;  // handles button debounce increment
 }
 
-// Key presses manager
+// Key presses interrupt handler
 void keys_handler() {
-    u16 pressed_keys = 0;  // reset register used for `PRESSED_ONCE`
-
     if (game_state == G_BEGIN) {
-        if (PRESSED_ONCE(KEY_START)) {  // attempt to start game
+        if (is_pressed(KEY_START)) {  // attempt to start game
             if (game_mode == TWO_PLAYER_WIFI) {
-                if (is_connected()) {  // wait for a connection before starting
-                    // Players must not start at the same time!
-
+                if (packet_is_connected()) {  // wait for a connection before starting
                     // Local started the game, they go first
                     active_side = STARTING_SIDE;
                     register_message((Message) { M_START });
                     next_game_state = G_RUNNING;
+                    // See conflict resolution in `network.c::wifi_process` if start at same time
                 }
             } else {
                 next_game_state = G_RUNNING;
             }
-        } else if (PRESSED_ONCE(KEY_SELECT) && game_mode == TWO_PLAYER_WIFI) {
-            // Use start to fully reinitiate connection establishment protocol
-            wifi_reset();
+        } else if (is_pressed(KEY_SELECT) && game_mode == TWO_PLAYER_WIFI) {
+            // Use select to fully reinitiate Wi-Fi
+            wifi_setup();
         }
-    }
-
-    if (game_state == G_RUNNING) {
-        // Direction selected control
-        if (PRESSED_ONCE(KEY_RIGHT) && selection_coords < BOTTOM_RIGHT) {
+    } else if (game_state == G_RUNNING) {
+        // Selected cell direction control
+        if (is_pressed(KEY_RIGHT) && selection_coords < BOTTOM_RIGHT) {
             selection_coords += COL_INCR;
-        } else if (PRESSED_ONCE(KEY_LEFT) && selection_coords > TOP_LEFT) {
+        } else if (is_pressed(KEY_LEFT) && selection_coords > TOP_LEFT) {
             selection_coords -= COL_INCR;
-        } else if (PRESSED_ONCE(KEY_DOWN) && selection_coords < BOTTOM_LEFT) {
+        } else if (is_pressed(KEY_DOWN) && selection_coords < BOTTOM_LEFT) {
             selection_coords += ROW_INCR;
-        } else if (PRESSED_ONCE(KEY_UP) && selection_coords > TOP_RIGHT) {
+        } else if (is_pressed(KEY_UP) && selection_coords > TOP_RIGHT) {
             selection_coords -= ROW_INCR;
         }
 
         // Place cell on selection
-        if (PRESSED_ONCE(KEY_A) && cell_at(board, selection_coords) == EMPTY && local_side == active_side) {
+        if (is_pressed(KEY_A) && cell_at(board, selection_coords) == EMPTY && local_side == active_side) {
             board = placed_cell(board, active_side, selection_coords);
             select_sound(false);
 
@@ -147,10 +170,10 @@ void keys_handler() {
                 active_side = OTHER_SIDE(active_side);
             }
 
-            set_time_left(STARTING_TIME);
+            set_progress_time_left(STARTING_TIME);
         }
 
-        if (PRESSED_ONCE(KEY_START)) {
+        if (is_pressed(KEY_START)) {
             // Terminate the game early
             next_game_state = G_FINISHED;
             if (game_mode == TWO_PLAYER_WIFI) {
@@ -163,34 +186,37 @@ void keys_handler() {
         }
 
         refresh_game_screen();
-    }
-
-    if (game_state == G_FINISHED) {
-        if (PRESSED_ONCE(KEY_START)) {  // restart game
-            next_game_state = G_BEGIN;
-        }
+    } else if (game_state == G_FINISHED && is_pressed(KEY_START)) {
+        next_game_state = G_BEGIN;  // back to menu
     }
 }
 
 // === Public interrupts interface ===
 
 void interrupts_setup() {
-    // Timer Interrupts
-    TIMER_DATA(1) = TIMER_FREQ_64(60);  // timer FSM (update game 60 times per seconds)
+    // --- Timer Interrupts ---
+
+    // Game timer FSM
+    TIMER_DATA(1) = TIMER_FREQ_64(60);  // update game state 60 times per seconds
     TIMER_CR(1) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
     irqSet(IRQ_TIMER(1), &game_fsm);
     irqEnable(IRQ_TIMER(1));
 
-    // Registers are set in `set_game_speed`
+    // Progress bar timer
+    // Registers are set in `setters.c::set_game_speed`
     irqSet(IRQ_TIMER(0), &progress_timer_handler);
     irqEnable(IRQ_TIMER(0));
 
-    TIMER_DATA(2) = TIMER_FREQ_64(10);  // Wi-Fi delay messages spam (increment every 100ms)
+    // Wi-Fi delay messages spam external timer & Buttons debounce counter
+    TIMER_DATA(2) = TIMER_FREQ_64(10); // increment every 100ms
     TIMER_CR(2) = TIMER_ENABLE | TIMER_DIV_64 | TIMER_IRQ_REQ;
-    irqSet(IRQ_TIMER(2), &wifi_timer_handler);
+    irqSet(IRQ_TIMER(2), &timers_handler);
     irqEnable(IRQ_TIMER(2));
 
-    // Button Interrupts
+    // Cannot use Wi-Fi with IRQ_TIMER(3) !
+
+    // --- Button Interrupts ---
+
     REG_KEYCNT = BIT(14) | KEY_UP | KEY_DOWN | KEY_RIGHT | KEY_LEFT | KEY_A | KEY_START | KEY_SELECT;
     irqSet(IRQ_KEYS, &keys_handler);
     irqEnable(IRQ_KEYS);

@@ -5,7 +5,8 @@
 #ifndef INCLUDE_GAME
 
 #define INCLUDE_GAME
-#define STARTING_TIME 24
+
+#define STARTING_TIME 24  // length of progress bar in tiles
 
 typedef enum {
     SINGLE_PLAYER,
@@ -33,6 +34,8 @@ typedef enum {
 
 #endif
 
+// === Globals ===
+
 extern GameMode game_mode;
 extern GameSpeed game_speed;
 
@@ -43,10 +46,12 @@ extern GameState game_state;
 extern GameState next_game_state;
 
 extern TimerState timer_state;
-extern u8 time_left;
+extern u8 progress_time_left;
 
 extern Cell local_side;
 extern Cell active_side;
+
+// === Public functionalities ===
 
 void refresh_game_screen();
 

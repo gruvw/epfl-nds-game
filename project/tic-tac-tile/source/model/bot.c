@@ -5,6 +5,7 @@ typedef struct {
     Coords move;
 } BotMove;
 
+// Will compute the best move possible on the `board` for `side`
 BotMove minimax(Board board, Cell side) {
     if (is_board_finished(board)) {
         Cell winner = winner_of(board).side;
@@ -30,11 +31,13 @@ BotMove minimax(Board board, Cell side) {
     return best_move;
 }
 
+// Plays the best move on the `board` for the `BOT_SIDE`
 Board bot_placed_cell(Board board) {
-    // Assumes that bot can play, game not yet finished
+    // Assumes that bot can play: game not finished yet
 
     if (is_second_move(board)) {
-        Coords best_moves[] = {  // cannot be global const, not compile constant
+        // Hard coded cache of first bot move (second total move) as it is too slow (~2 seconds) to compute
+        Coords best_moves[] = {  // cannot be global const, "not compile time constant"...
             MID_MID, TOP_LEFT, MID_MID,
             TOP_LEFT, TOP_LEFT, TOP_RIGHT,
             MID_MID, TOP_MID, MID_MID,

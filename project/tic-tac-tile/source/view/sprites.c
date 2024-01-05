@@ -1,8 +1,8 @@
 #include <nds.h>
 
+#include "../controller/network.h"
 #include "../model/board.h"
 
-#include "sprites.h"
 #include "graphics.h"
 
 #include "j-cross-sprite.h"
@@ -13,6 +13,8 @@
 #include "o-search-sprite.h"
 #include "p-connected-sprite.h"
 #include "q-wifi-sprite.h"
+
+#include "sprites.h"
 
 // === Palette corrections ===
 
@@ -112,19 +114,15 @@ void hide_wifi_sprites() {
     oamUpdate(&oamSub);
 }
 
-void show_wifi_sprite() {
+void show_connection_sprite(WifiState wifi_state) {
     hide_wifi_sprites();
-    OAM_SHOW(wifi_sprite, 152, 200, 7);
 
-    oamUpdate(&oamSub);
-}
-
-void show_connection_sprite(bool connected) {
-    hide_wifi_sprites();
-    if (connected) {
-        OAM_SHOW(connected_sprite, 152, 200, 6);
-    } else {
+    if (wifi_state == WS_NO_WIFI) {
+        OAM_SHOW(wifi_sprite, 152, 200, 7);
+    } else if (wifi_state == WS_WIFI) {
         OAM_SHOW(search_sprite, 152, 200, 5);
+    } else if (wifi_state == WS_PAIRED) {
+        OAM_SHOW(connected_sprite, 152, 200, 6);
     }
 
     oamUpdate(&oamSub);

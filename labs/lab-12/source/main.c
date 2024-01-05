@@ -1,9 +1,11 @@
 #include <nds.h>
 #include <stdio.h>
 #include "WiFi_minilib.h"
+#include "dswifi9.h"
+#include "nds/interrupts.h"
 
 #define MSG 4
-#define GAME_ID ((char) 0b1110110)
+#define GAME_ID ((char) 0b110)
 
 typedef enum Messages_e {
 	A,	//0x00
@@ -92,6 +94,30 @@ int main(void) {
     else
     	printf("Error Socket\n");
 
+    // disconnectFromWiFi();
+    // swiWaitForVBlank();
+    // closeSocket();
+    // swiWaitForVBlank();
+
+    // if (Wifi_CheckInit()) {
+    //     printf("Still init!\n");
+    // } else {
+    //     printf("not init");
+    // }
+
+    // swiWaitForVBlank();
+
+    //Initialize WiFi
+    // if(initWiFi())
+    // 	printf("WiFi OK!\n");
+    // else
+    // 	printf("Error WiFi\n");
+
+    // //Open Socket
+    // if(openSocket())
+    // 	printf("Socket OK!\n");
+    // else
+    // 	printf("Error Socket\n");
 
     while(1)
     {

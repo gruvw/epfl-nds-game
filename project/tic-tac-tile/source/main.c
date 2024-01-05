@@ -1,9 +1,6 @@
-#include <nds.h>
-#include <stdio.h>
-
 #include "controller/game.h"
 
-int main(void) {
+int main() {
     game_setup();
 
     game_loop();

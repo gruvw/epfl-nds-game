@@ -1,10 +1,8 @@
 #include <nds.h>
-#include <stddef.h>
 
 #include "../controller/game.h"
 #include "../model/board.h"
 
-#include "graphics.h"
 #include "sprites.h"
 
 #include "a-palette.h"
@@ -16,6 +14,8 @@
 #include "g-sub-palette.h"
 #include "h-begin.h"
 #include "i-sub-finished.h"
+
+#include "graphics.h"
 
 // === Palette corrections ===
 
@@ -38,7 +38,7 @@ typedef struct {
 
 // === Utilities ===
 
-// Translate board coords to screen coords
+// Translate board coords to screen position
 ScreenPosition position_from_coords(Coords coords) {
     return (ScreenPosition) {
         26 + 50 * ROW(coords),
