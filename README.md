@@ -29,7 +29,7 @@ To install the game, you will need to obtain the `tic-tac-tile.nds` game file.
 
 Use one of the following method:
 
-- Download it online from the GitHub releases: [`tic-tac-tile.nds`](https://) <!-- TODO -->
+- Download it online from the latest GitHub release: [`tic-tac-tile.nds`](https://github.com/gruvw/epfl-nds-game/releases/download/v1.0.0/tic-tac-tile.nds)
 - Build it from source: clone this repository and run `make build` in the same directory as this README (requires [`devkitpro-pacman`](https://apt.devkitpro.org/install-devkitpro-pacman)). The game file `tic-tac-tile.nds` will be generated in that directory.
 
 Place the `tic-tac-tile.nds` file inside the micro SD card of an [R4 cartridge](https://en.wikipedia.org/wiki/R4_cartridge).
@@ -266,4 +266,4 @@ Essentially the connection leader will keep its state and inform the other NDS t
 - [X] README full documentation + code structure + BOP protocol explain
 - [X] Last full project review (code, README, presentation, game test)
 - [X] GitHub reorganize repo (project and others)
-- [ ] GitHub release (add to README)
+- [X] GitHub release (add link of file to README)
