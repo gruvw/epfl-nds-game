@@ -106,8 +106,10 @@ PacketData receive_packet_data() {
             data[2],  // packet id
             ID_FROM(data[3], data[4]),  // sender
             ID_FROM(data[5], data[6]),  // receiver
-            data[7],  // content type
-            data[8],  // content arg
+            {  // Message
+                data[7],  // content type
+                data[8],  // content arg
+            },
         };
     }
 

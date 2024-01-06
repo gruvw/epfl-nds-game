@@ -19,7 +19,7 @@ typedef struct {
 
 #endif
 
-#define EMPTY_QUEUE (Queue) {{0}, 0, 0};
+#define EMPTY_QUEUE ((Queue) { { 0 }, 0, 0 })
 
 // === Queue Interface ===
 
