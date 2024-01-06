@@ -13,7 +13,10 @@ typedef enum {
 } BOPState;
 
 typedef u16 DeviceID;
-#define MAX_ID 0xFD  // noninclusive
+#define MAX_ID 0xFFFD  // noninclusive
+
+#define MSBYTE(id) ((id) >> 8)
+#define ID_FROM(msbyte, lsbyte) ((((DeviceID) (msbyte)) << 8) | (lsbyte))
 
 typedef struct {
     PacketType packet_type;
@@ -83,8 +86,10 @@ void send_packet(Packet packet) {
         GAME_ID,
         packet.type,
         (char) packet.id,
-        (char) local_id,  // sender
-        (char) paired_id,  // receiver
+        (char) MSBYTE(local_id),  // sender
+        (char) local_id,
+        (char) MSBYTE(paired_id),  // receiver
+        (char) paired_id,
         packet.content.type,
         (char) packet.content.arg,
     };
@@ -99,10 +104,10 @@ PacketData receive_packet_data() {
         return (PacketData) {
             data[1],  // packet type
             data[2],  // packet id
-            data[3],  // sender
-            data[4],  // receiver
-            data[5],  // content type
-            data[6],  // content arg
+            ID_FROM(data[3], data[4]),  // sender
+            ID_FROM(data[5], data[6]),  // receiver
+            data[7],  // content type
+            data[8],  // content arg
         };
     }
 
