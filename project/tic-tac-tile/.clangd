@@ -1,9 +1,0 @@
-CompileFlags:
-  Add:
-    - "-I/opt/devkitpro/libnds/include"
-    - "-I/opt/devkitpro/libctru/include"
-    - "-I/opt/devkitpro/devkitARM/include"
-    - "-I/opt/devkitpro/devkitARM/arm-none-eabi/include"
-    - "-I/opt/devkitpro/devkitARM/arm-none-eabi/include"
-    - "-I/home/gruvw/SynologyDrive/Programmation/C/epfl-nds-game/project/tic-tac-tile/build/"
-    - "-DARM9"
