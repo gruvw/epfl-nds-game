@@ -6,7 +6,13 @@
 
 #include "audio.h"
 
+// === Utility macros ===
+
 #define MUSIC_VOLUME 190
+#define TEMPO_PERC(perc) ((perc) * 1024 / 100)
+#define PITCH_PERC(perc) (1024 * (perc) / 100)
+
+// === Audio functionality ===
 
 void audio_setup() {
     mmInitDefaultMem((mm_addr) soundbank_bin);
@@ -25,11 +31,17 @@ void audio_setup() {
 
 void menu_music() {
     mmStop();
+    mmSetModuleTempo(TEMPO_PERC(100));
+    mmSetModulePitch(PITCH_PERC(100));
+
     mmStart(MOD_MENU, MM_PLAY_LOOP);
 }
 
-void game_music() {
+void game_music(u8 percentage) {
     mmStop();
+    mmSetModuleTempo(TEMPO_PERC(percentage));
+    mmSetModulePitch(PITCH_PERC(percentage));
+
     mmStart(MOD_GAME, MM_PLAY_LOOP);
 }
 

@@ -60,6 +60,7 @@ Select among the 3 **speeds** and adjust the game's difficulty:
 2. Press on the `start` button to launch a game.
     * In Wi-Fi two player mode, <!-- TODO wifi explain in wifi section, do not press start at same time, press start while search to reinitiate connection process, if Wi-Fi connection was connected but is now permanantly lost no way to know so press SELECT to reconnect to wifi, if momentary lost it's ok they will sync packets -->
     <!-- TODO explain how to play with wifi, AP phone, start and search procedures, stay closer to phone to work, any side can choose their desired difficulty -->
+    <!-- TODO if cannot connect to wifi or blocked in search mode (means permanently disconnected from AP), restart AP and NDS -->
 3. Select the square where you want to place your piece using the `Left`, `Right`, `Up`, `Down` arrow buttons.
 4. Press on `A` to confirm your choice.
    Be carefull about the progress bar, you need to play before you run out of time to win!
@@ -88,6 +89,13 @@ Have fun !
 <!-- TODO WIFI system stands very strong against packet loss with packet queue and file system -->
 <!-- TODO sometimes, two NDS will get stuck in search mode and you need to reboot -->
 <!-- TODO modified provided wifi minilib (timeout) -->
+<!-- TODO simplified diagrams, for more details jump into the code -->
+<!-- TODO called bot instead of AI -->
+<!-- TODO full packet system with check for game id, receiver and sender -->
+<!-- TODO MVC architecture -->
+<!-- TODO explain wifi icons -->
+<!-- TODO in order to ensure reliable communications over an unreliable and broadcast only channel I designed and implemented a new protocol -->
+<!-- TODO project is very much less about the game itself than about controlling peripherals and wifi communication -->
 
 ## Roadmap
 
@@ -114,7 +122,10 @@ Have fun !
 - [X] Keys debounce with timer
 - [X] Same packet simultaneous sending resolution (start game)
 - [X] Clean, comment, and polish code
-- [ ] Fully test game
+- [X] Game music speed changes with difficulty
+- [X] Fully test game
+- [X] Diagrams (Game FSM, P2P-BOP connection, ACK & queue FSM)
 - [ ] Update presentation
 - [ ] README code structure + BOP protocol explain
 - [ ] GitHub release (add to README)
+- [ ] GitHub reorganize repo (project and others)

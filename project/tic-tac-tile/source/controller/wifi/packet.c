@@ -151,7 +151,7 @@ bool p2p_bop(PacketData packet_data) {
             // Locally paired BOP agent is still discovering
             // Do no check receiver id yet, it is invalid as not known by BOP agent at this point
 
-            // Inform BOP agent (sender) that BOP leader (local) is locally paired to them
+            // Inform BOP agent (sender) that BOP leader (local) is locally paired to them and wants to connect
             send_packet((Packet) { P_CONNECT });  // previous `P_CONNECT` packet was probably dropped
         } else if (packet_data.reciever_id != local_id) {
             // Connection establishment race resolution
@@ -165,13 +165,14 @@ bool p2p_bop(PacketData packet_data) {
             bop_state = BOP_BIDIRECTIONALLY_PAIRED;
         } else if (COUNTER_DONE) {
             // Continuously inform BOP agent that we want to connect
+            // Needed to force BOP agent to communicate if we lost connection establishment race
             send_packet((Packet) { P_CONNECT });
         }
 
         return false;
     }
 
-    if (packet_data.packet_type == P_CONNECT) {
+    if (packet_data.packet_type == P_CONNECT && packet_data.reciever_id == local_id) {
         // BOP leader (sender) is still waiting for connection confirmation
         // Or another leader wants to connect (connection establishment race)
 

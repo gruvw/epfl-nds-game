@@ -14,6 +14,10 @@
 
 #include "interrupts.h"
 
+// === Helper Macros ===
+
+#define DIFFICULTY_TO_PERC(diff) ((diff) == SLOW ? 100 : ((diff) == MEDIUM ? 130 : 160))
+
 // === Keys Debounce Helper ===
 
 typedef u16 DebounceTimer;
@@ -66,7 +70,7 @@ void game_fsm() {
         hide_begin();
         refresh_game_screen();
 
-        game_music();
+        game_music(DIFFICULTY_TO_PERC(game_speed));
     }
 
     if (next_game_state == G_FINISHED) {  // game over
