@@ -15,7 +15,7 @@ The last layer of meaning behind the name is the sound of a clock "tic tac" as t
 Here are a few pictures of the Tic-Tac-Tile game:
 
 <div>
-  <img src="docs/nds.jpg" alt="NDS" width="600px">
+  <img src="docs/nds.jpg" alt="NDS game running" width="600px">
   <br>
   <img src="docs/menu.png" alt="Game Menu" width="197px"> 
   <img src="docs/game.png" alt="Game Play" width="197px"> 
@@ -29,6 +29,7 @@ Instructions to play Tic-Tac-Tile :)
 ### Installation
 
 To install the game, you will need to obtain the `tic-tac-tile.nds` game file.
+
 Use one of the following method:
 
 - Download it online from the GitHub releases: [`tic-tac-tile.nds`](https://) <!-- TODO -->
@@ -44,7 +45,7 @@ Once the game boots up, you'll be welcomed by a nice background music and the se
 
 It features 3 **game modes**:
 
-* Single player mode, against bot
+* Single player mode, against bot/AI
 * Two player mode, single NDS
 * Two player mode, two NDS over Wi-Fi
 
@@ -56,50 +57,93 @@ Select among the 3 **speeds** and adjust the game's difficulty:
 
 #### Play
 
-1. Select the settings that you want by using the bottom touch screen.
+1. Select the settings that you want by using the bottom touch screen. (see below for Wi-Fi two player mode setup)
 2. Press on the `start` button to launch a game.
-    * In Wi-Fi two player mode, <!-- TODO wifi explain in wifi section, do not press start at same time, press start while search to reinitiate connection process, if Wi-Fi connection was connected but is now permanantly lost no way to know so press SELECT to reconnect to wifi, if momentary lost it's ok they will sync packets -->
-    <!-- TODO explain how to play with wifi, AP phone, start and search procedures, stay closer to phone to work, any side can choose their desired difficulty -->
-    <!-- TODO if cannot connect to wifi or blocked in search mode (means permanently disconnected from AP), restart AP and NDS -->
-3. Select the square where you want to place your piece using the `Left`, `Right`, `Up`, `Down` arrow buttons.
-4. Press on `A` to confirm your choice.
+    * In Wi-Fi two player mode, the first player to press start will start the game for both players and will play first.
+3. Select the square where you want to place your piece using the `left`, `right`, `up`, `down` arrow buttons.
+4. Press on the `A` button to confirm your choice and place your piece.
    Be carefull about the progress bar, you need to play before you run out of time to win!
 5. Wait for the other side to play.
     * In single player mode, the bot will play instantly after your turn.
-    * In (local) two player, mode you need to pass the Nintendo DS to the other player so they can play.
+    * In (local) two player mode, you need to hand out the Nintendo DS to the other player so they can play.
     * In Wi-Fi two player mode, simply wait for your opponent to play on their Nintendo DS.
-6. Carry on till you reach the Game Over screen. Alternatively you can also press the `start` button at any moment to put an end to the current game and go directly to the Game Over screen.
+6. Carry on till you reach the Game Over screen.
+   Alternatively you can also press the `start` button at any moment to put an end to the current game and go directly to the Game Over screen.
     * If one of the side won, their 3 winning pieces will be highlighted on the board.
-      Their piece will be crowned on the bottom screen.
+      Additionally, the winning side will be crowned on the bottom screen.
     * A clock will be displayed on the bottom screen in case they won because the other side ran out of time.
-    * No additional information will be displayed if the game resulted in a draw.
-      You will simply see the Game Over screen and the final state of the board.
+    * No information will be displayed on the bottom screen if the game resulted in a draw or if it was interrupted.
+      In that case, you will simply see the Game Over screen and the final state of the board.
 7. You can start a new game by pressing the `start` button to go back to the settings selection menu.
 
 Have fun !
 
-<!-- TODO project less about the actual game but more about the hardware and peripherals utilization -->
-<!-- TODO project presentation to README -->
-<!-- TODO be careful, sometimes a NDS physical button press can be triggered multiple times (troubleshoot section) -->
-<!-- TODO technicals section, P2P-BOP (leader, agent) + ACK fsm (decoding packet data) -->
-<!-- TODO WIFI if can't find AP, do not stuck the game, just do not activate wifi two player mode, can retry later -->
-<!-- TODO document key SELECT (reset and reinitiate wifi connection process) -->
-<!-- TODO WIFI is possible to play multiple simultaneous games of tic-tac-tile on same network and also multiple other NDS wifi games should not interfere -->
-<!-- TODO WIFI stack do not track disconnection from peer, once it is shown as connected it will stay in this state, if the peer is disconnected before successfully (acked) communicating the end of the game, the local device will need to end the game them self (press start) or if game is not started yet press SELECT to restart connection establishment process -->
-<!-- TODO WIFI system stands very strong against packet loss with packet queue and file system -->
-<!-- TODO sometimes, two NDS will get stuck in search mode and you need to reboot -->
-<!-- TODO modified provided wifi minilib (timeout) -->
-<!-- TODO simplified diagrams, for more details jump into the code -->
-<!-- TODO called bot instead of AI -->
-<!-- TODO full packet system with check for game id, receiver and sender -->
-<!-- TODO MVC architecture -->
-<!-- TODO explain wifi icons -->
-<!-- TODO in order to ensure reliable communications over an unreliable and broadcast only channel I designed and implemented a new protocol -->
-<!-- TODO project is very much less about the game itself than about controlling peripherals and wifi communication -->
-<!-- TODO Wi-Fi each player can select their own game speed -->
-<!-- TODO Wi-Fi reconnect after each game end, potentially change partner if other NDS are searching :) -->
+#### Wi-Fi Two Player Mode Setup
 
-## Roadmap
+In order to play in Two Player Mode over Wi-Fi, each player playing on their own NDS, you need to complete the following setup first:
+
+* Take a smartphone and disable your Wi-Fi and cellular data (as you will create a public Access Point).
+* Go into your phone settings a configure your Access Point (AP) network sharing.
+* Setup the SSID (name of your internet sharing AP) to be `SEM-NDS`.
+* Instead of putting a password, select `None` in the AP configuration security settings to disable password authentification, essentially making a public network.
+* You are good to go :)
+
+NDS setup:
+
+1. Start the game on both NDS.
+2. Click on the "Two Player Wi-Fi" game mode.
+   Keep the NDS very close to the AP.
+3. You will see the Wi-Fi icon show up while trying to connect to the AP: <img src="docs/wifi.png" alt="Wi-Fi icon" width="60px">
+    * If the connection is successful, the "Two Player Wi-Fi" mode will now be selected.
+    * Otherwise it will stop trying to connect after a few seconds, hide the Wi-Fi icon and stay in your current game mode.
+4. Once the "Two Player Wi-Fi" mode is selected (successfully connected to AP), the search icon will indicate that your NDS is ready to pair with another NDS: <img src="docs/search.png" alt="Search icon" width="60px">
+5. After two NDS are searching to connect at the same time, they will find each other automatically and pair.
+   The paired/success icon will be displayed on the two NDS once the connection is fully established: <img src="docs/paired.png" alt="Paired icon" width="60px">
+6. Each player can chose their own speed difficulty independently.
+   You can now start a game!
+7. At the end of the game, when you go back to the main menu, the search process will start again (back to point 4).
+   It allows to change opponents between games if other NDS are also searching (more than 2 NDS), otherwise just wait a few seconds to connect back to your opponent.
+
+**Note 1**: on the main menu, you can restart the pairing process by pressing the `select` button (e.g. if you want to pair to someone else).
+
+**Note 2**: you can play with more than 2 NDS on the same Wi-Fi network! You can have multiple games running simultaneously (e.g. with 4 NDS).
+
+##### Troubleshoot
+
+if wifi connection is momentarly lost (a bit long to connect to opponent in search mode, your move does not arrive instantly) it is normal, stay close to AP, messages can take time to complete (it is not stuck, just wait for it to arrive)
+if you are blocked in search mode you can press the SELECT button to reset the connection process to see if it helps, otherwise it probably means (bellow)
+if wifi connection is permanatly lost (blocked in search mode or can't go into two player mode) there is currently no way to reset it so you need to reboot all NDS and restart AP 
+if you are stuck in a game or you have any trouble, just press START to show the game over screen and press start again to lead you to the menu where you can start fresh
+
+Note no security features are built in, wifi games can be rigged by hackers on same (public) local network 
+
+## Development
+
+project less about the actual game but more about the hardware and controlling peripherals, choose a simple game but utilized a lot of peripherals and focused on wifi communication reliability, code quality and documentation
+
+implemented a bot/AI using a minimax recursive algorithm to find the best move + cached first move as too slow
+implemented a wifi AP connection timeout (do not stuck the game if can't connect to AP, timeout and can still play in other modes)
+in order to ensure reliable communications over an unreliable and broadcast only channel I designed and implemented a new protocol
+P2P-BOP protocol
+ACK message system for packet loss (decoding packet data), full packet system checks for game_id receiver and sender
+receiver and sender + pairing business, allows for more than two players on same AP wifi
+show diagrams + for more details jump into the code
+Press start at same time will launch a conflict resolution process... (see slides)
+debounce button implementation (avoid multiple fast key presses with timer)
+WIFI system stands very strong against packet loss with packet queue and ack system
+modified provided wifi minilib (cleaned code, added timeout)
+
+### Presentation
+
+project presentation to README
+
+### Code structure
+
+art folder has 17 art/image files (done entirely by me)
+MVC architecture
+about 1900 lines of code in source
+
+### Roadmap
 
 - [X] Board model + utilities
 - [X] Main background graphics
@@ -128,6 +172,7 @@ Have fun !
 - [X] Fully test game
 - [X] Diagrams (Game FSM, P2P-BOP connection, ACK & queue FSM)
 - [X] Update presentation
+- [X] Go back to 16 bits network identifiers
 - [ ] README code structure + BOP protocol explain
 - [ ] GitHub release (add to README)
 - [ ] GitHub reorganize repo (project and others)
