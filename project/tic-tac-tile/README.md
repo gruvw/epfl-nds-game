@@ -96,6 +96,8 @@ Have fun !
 <!-- TODO explain wifi icons -->
 <!-- TODO in order to ensure reliable communications over an unreliable and broadcast only channel I designed and implemented a new protocol -->
 <!-- TODO project is very much less about the game itself than about controlling peripherals and wifi communication -->
+<!-- TODO Wi-Fi each player can select their own game speed -->
+<!-- TODO Wi-Fi reconnect after each game end, potentially change partner if other NDS are searching :) -->
 
 ## Roadmap
 
@@ -125,7 +127,7 @@ Have fun !
 - [X] Game music speed changes with difficulty
 - [X] Fully test game
 - [X] Diagrams (Game FSM, P2P-BOP connection, ACK & queue FSM)
-- [ ] Update presentation
+- [X] Update presentation
 - [ ] README code structure + BOP protocol explain
 - [ ] GitHub release (add to README)
 - [ ] GitHub reorganize repo (project and others)
