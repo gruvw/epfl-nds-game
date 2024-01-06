@@ -12,7 +12,7 @@ include $(DEVKITARM)/ds_rules
 # SOURCES is a list of directories containing source code
 # INCLUDES is a list of directories containing extra header files
 #---------------------------------------------------------------------------------
-TARGET		:= $(shell basename $(CURDIR))
+TARGET		:= tic-tac-tile
 BUILD		:= build
 SOURCES		:= source source/controller source/view source/model source/controller/wifi
 DATA		:=
