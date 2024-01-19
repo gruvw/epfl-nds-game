@@ -9,8 +9,8 @@
 // === Utility macros ===
 
 #define MUSIC_VOLUME 190
-#define TEMPO_PERC(perc) ((perc) * 1024 / 100)
-#define PITCH_PERC(perc) (1024 * (perc) / 100)
+#define AUDIO_PERC(perc) ((perc) * 1024 / 100)
+#define DEFAULT AUDIO_PERC(100)
 
 // === Audio functionality ===
 
@@ -31,16 +31,16 @@ void audio_setup() {
 
 void menu_music() {
     mmStop();
-    mmSetModuleTempo(TEMPO_PERC(100));
-    mmSetModulePitch(PITCH_PERC(100));
+    mmSetModuleTempo(DEFAULT);
+    mmSetModulePitch(DEFAULT);
 
     mmStart(MOD_MENU, MM_PLAY_LOOP);
 }
 
 void game_music(u8 percentage) {
     mmStop();
-    mmSetModuleTempo(TEMPO_PERC(percentage));
-    mmSetModulePitch(PITCH_PERC(percentage));
+    mmSetModuleTempo(AUDIO_PERC(percentage));
+    mmSetModulePitch(AUDIO_PERC(percentage));
 
     mmStart(MOD_GAME, MM_PLAY_LOOP);
 }

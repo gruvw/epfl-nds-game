@@ -211,7 +211,7 @@ Here is the project structure:
 
 In order to ensure reliable communications over an unreliable and broadcast only channel I designed and implemented a new protocol: **Peer-to-Peer Broadcast Ordered Pairing (P2P-BOP) protocol**.
 
-It takes avantage and randomly chosen network IDs ordering to initiate a bidirectional connection between two devices after a discovery process.
+It takes avantage of randomly chosen network IDs ordering to initiate a bidirectional connection between two devices after a discovery process.
 It is not tied to NDS and might aswell be used in other broadcast only peer-to-peer environment.
 
 Here is a simplified diagram of how it works:
