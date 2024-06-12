@@ -1,9 +1,9 @@
 # Tic-Tac-Tile NDS Game Project
 
-EPFL BA5 EE-310 NDS project  
-Lucas Jung (324724)
+This game is a [Tic-Tac-Toe](https://en.wikipedia.org/wiki/Tic-tac-toe) clone on the [NDS](https://en.wikipedia.org/wiki/Nintendo_DS) with multiplayer capabilities, playable through Wi-Fi.
 
-This game is a [Tic-Tac-Toe](https://en.wikipedia.org/wiki/Tic-tac-toe) clone on the [NDS](https://en.wikipedia.org/wiki/Nintendo_DS).
+EPFL BA5 EE-310 (embedded systems) NDS project  
+Lucas Jung @gruvw (324724)
 
 **Name**: the name Tic-Tac-Tile is a modification of the original Tic-Tac-Toe game name. It is a reference to the word "TacTile", denoting the bottom tactile screen of the NDS. Additionally, the last word "Tile" is a reference to the tile mode of the graphical engines of the NDS. The last layer of meaning behind the name is the sound of a clock "tic tac" as there is some kind of a time pressure aspect to the game.
 
